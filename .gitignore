@@ -13,3 +13,10 @@ Thumbs.db
 # Python（本地测试用）
 __pycache__/
 *.pyc
+
+# Node.js 依赖
+node_modules/
+worker/node_modules/
+
+# Wrangler 缓存
+worker/.wrangler/

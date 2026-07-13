@@ -5,9 +5,9 @@
 var Sync = (function() {
 
   // ===== 配置 =====
-  // 部署 Worker 后，将地址填入这里
-  // 格式: https://your-worker-name.your-subdomain.workers.dev
-  var API_BASE = localStorage.getItem('gev_api_base') || '';
+  // 默认后端地址（已部署）
+  var DEFAULT_API = 'https://gaokao-vocab-sync.goodniuniu.workers.dev';
+  var API_BASE = localStorage.getItem('gev_api_base') || DEFAULT_API;
 
   // 同步码本地存储 key
   var SYNC_CODE_KEY = 'gev_sync_code';
