@@ -3,87 +3,64 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>高考英语单词练习 · WorkBuddy 混元Hy3</title>
-<style>
-  :root{
-    --bg:#f5f7fb; --card:#ffffff; --ink:#1f2733; --sub:#6b7686;
-    --brand:#2f6fed; --brand2:#15c39a; --warn:#ff6b6b; --ok:#15c39a;
-    --line:#e6ebf2; --shadow:0 6px 22px rgba(31,39,51,.08);
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-tap-highlight-color:transparent}
-  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 40px}
-  header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));
-    color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
-  h1{font-size:19px;margin:0}
-  .tag{font-size:12px;color:var(--sub);margin:0 0 14px}
-  .tag b{color:var(--brand)}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center;box-shadow:var(--shadow)}
-  .stat .n{font-size:18px;font-weight:800;color:var(--brand)}
-  .stat .l{font-size:11px;color:var(--sub)}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
-  .modes{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  .mode{display:flex;flex-direction:column;gap:2px;padding:13px 14px;border:1px solid var(--line);border-radius:13px;
-    background:#fbfdff;cursor:pointer;transition:.15s;text-align:left}
-  .mode:hover{border-color:var(--brand);transform:translateY(-1px)}
-  .mode .t{font-weight:700;font-size:15px}
-  .mode .d{font-size:12px;color:var(--sub)}
-  .hidden{display:none!important}
-  .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:13px;color:var(--sub)}
-  .qhead .bar{flex:1;height:8px;background:var(--line);border-radius:6px;margin:0 10px;overflow:hidden}
-  .qhead .bar i{display:block;height:100%;background:var(--brand);width:0;transition:.3s}
-  .prompt{font-size:22px;font-weight:800;text-align:center;margin:14px 0 4px}
-  .prompt .ph{color:var(--sub);font-size:15px;font-weight:600}
-  .prompt .zh{font-size:20px}
-  .opts{display:grid;gap:10px;margin:14px 0}
-  .opt{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;cursor:pointer;font-size:16px;transition:.12s}
-  .opt:hover{border-color:var(--brand)}
-  .opt.correct{background:#e7faf3;border-color:var(--ok);color:#0b7a5e}
-  .opt.wrong{background:#ffecec;border-color:var(--warn);color:#b3261e}
-  .opt.dim{opacity:.5}
-  .explain{background:#f3f7ff;border-left:3px solid var(--brand);border-radius:8px;padding:10px 12px;font-size:14px;margin:10px 0}
-  .explain .w{font-weight:700}
-  .row{display:flex;gap:10px;margin-top:12px}
-  .btn{flex:1;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff}
-  .btn.ghost{background:#eef2f8;color:var(--ink)}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
-  input.spell{width:100%;padding:13px 14px;font-size:17px;border:1px solid var(--line);border-radius:12px;margin:12px 0;outline:none}
-  input.spell:focus{border-color:var(--brand)}
-  .result{text-align:center;padding:8px 0}
-  .result .score{font-size:42px;font-weight:900;color:var(--brand)}
-  .result .sub{color:var(--sub);margin-bottom:8px}
-  .wb-item{border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:9px}
-  .wb-item .w{font-weight:800;font-size:16px}
-  .wb-item .m{color:var(--sub);font-size:13px}
-  .wb-item .ph{color:var(--brand);font-size:13px}
-  .flash{text-align:center;cursor:pointer;min-height:150px;display:flex;flex-direction:column;justify-content:center}
-  .flash .word{font-size:30px;font-weight:900}
-  .flash .ph{color:var(--brand);font-size:16px;margin-top:4px}
-  .flash .pos{color:var(--sub);font-size:13px;margin-top:8px}
-  .flash .mean{font-size:22px;margin-top:8px;color:var(--brand2);font-weight:800}
-  .flash .hint{color:var(--sub);font-size:12px;margin-top:14px}
-  .flipbtns{display:flex;gap:10px;margin-top:8px}
-  .center{text-align:center}
-  footer{text-align:center;color:var(--sub);font-size:12px;margin-top:18px}
-  footer b{color:var(--brand)}
-  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#1f2733;color:#fff;
-    padding:10px 18px;border-radius:20px;font-size:14px;opacity:0;transition:.25s;pointer-events:none}
-  .toast.show{opacity:1}
-</style>
+<title>高考英语单词练习</title>
+<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 <div class="wrap">
-  <header><div class="logo">W</div><h1>高考英语单词练习</h1></header>
-  <p class="tag">由 <b>WorkBuddy（混元 Hy3）</b> 生成的单文件练习器 · 单词范围：高考英语词汇</p>
+  <!-- Header -->
+  <header>
+    <div class="logo">W</div>
+    <h1>高考英语单词练习</h1>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="切换主题">🌙</button>
+      <button class="icon-btn" onclick="openSettings()" title="设置">⚙️</button>
+      <div class="user-badge" id="userBadge" onclick="openUserModal()">
+        <span class="avatar">+</span>
+        <span class="name">点击登录</span>
+      </div>
+    </div>
+  </header>
+  <p class="tag">词库 <b id="sTotal">0</b> 词 · 间隔重复记忆 · 多用户支持 · 数据本地保存</p>
 
+  <!-- 每日目标 -->
+  <div class="daily-goal">
+    <div class="icon">🎯</div>
+    <div class="text">
+      <div class="t">今日目标</div>
+      <div class="d" id="dgLabel">还未开始</div>
+    </div>
+    <div class="progress">
+      <div class="n"><span id="dgCount">0</span>/<span id="dgGoal">20</span></div>
+      <div class="l">道题</div>
+    </div>
+  </div>
+
+  <!-- 统计 -->
   <div class="stats">
     <div class="stat"><div class="n" id="sTotal">0</div><div class="l">词库</div></div>
     <div class="stat"><div class="n" id="sWrong">0</div><div class="l">错题</div></div>
     <div class="stat"><div class="n" id="sDone">0</div><div class="l">已练</div></div>
     <div class="stat"><div class="n" id="sBest">—</div><div class="l">最佳%</div></div>
+  </div>
+
+  <!-- 学习进度 -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="progress-ring">
+      <div class="ring">
+        <svg width="56" height="56">
+          <circle cx="28" cy="28" r="24" fill="none" stroke="var(--line)" stroke-width="5"/>
+          <circle cx="28" cy="28" r="24" fill="none" stroke="var(--brand2)" stroke-width="5"
+            stroke-dasharray="150.8" stroke-dashoffset="150.8" id="progressCircle"
+            style="transition:stroke-dashoffset .5s"/>
+        </svg>
+        <span class="pct" id="sProgress">0%</span>
+      </div>
+      <div class="info">
+        <div class="title">学习进度</div>
+        <div class="desc">已掌握 <strong id="sMastered" style="color:var(--brand2)">0</strong> · 学习中 <strong id="sLearning">0</strong></div>
+      </div>
+    </div>
   </div>
 
   <!-- 首页 -->
@@ -94,12 +71,16 @@
         <button class="mode" onclick="startMode('meaning')"><span class="t">🔤 词义选择</span><span class="d">看英文选中文</span></button>
         <button class="mode" onclick="startMode('word')"><span class="t">🧩 单词选择</span><span class="d">看中文选英文</span></button>
         <button class="mode" onclick="startMode('spell')"><span class="t">✍️ 拼写练习</span><span class="d">看释义拼单词</span></button>
-        <button class="mode" onclick="startMode('smart')"><span class="t">🎲 智能组卷</span><span class="d">随机10题混刷</span></button>
-        <button class="mode" onclick="startMode('wrong')"><span class="t">📕 错题复习</span><span class="d">只练错过的新题</span></button>
+        <button class="mode" onclick="startMode('smart')"><span class="t">🎲 智能组卷</span><span class="d">SRS 混合出题</span></button>
+        <button class="mode" onclick="startMode('review')"><span class="t">📖 复习模式</span><span class="d">只练到期复习</span></button>
       </div>
     </div>
-    <div class="card center">
-      <button class="mode" style="width:100%;background:#fff" onclick="showWrong()"><span class="t">查看错题本</span><span class="d" id="wbCount">共 0 条 · 点击管理</span></button>
+    <div class="card">
+      <div class="modes" style="grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <button class="mode" onclick="startMode('wrong')" style="padding:12px 8px"><span class="t" style="font-size:14px">📕 错题</span><span class="d" id="wbCount">0条</span></button>
+        <button class="mode" onclick="showWrong()" style="padding:12px 8px"><span class="t" style="font-size:14px">📋 错题本</span><span class="d">查看管理</span></button>
+        <button class="mode" onclick="showCustom()" style="padding:12px 8px"><span class="t" style="font-size:14px">✍️ 自定义</span><span class="d">我的单词</span></button>
+      </div>
     </div>
   </div>
 
@@ -112,6 +93,9 @@
         <span id="qMode">练习</span>
       </div>
       <div class="prompt" id="qPrompt"></div>
+      <div class="speak-row hidden" id="speakRow">
+        <button class="speak-btn" id="speakBtn" onclick="">🔊</button>
+      </div>
       <div class="opts" id="qOpts"></div>
       <input class="spell hidden" id="qSpell" placeholder="输入英文单词，回车提交" autocomplete="off" />
       <div class="explain hidden" id="qExplain"></div>
@@ -119,6 +103,7 @@
         <button class="btn ghost" onclick="goHome()">退出</button>
         <button class="btn" id="qNext" disabled onclick="nextQuestion()">下一题</button>
       </div>
+      <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:8px">快捷键：A-D 选择 · 回车下一题</p>
     </div>
   </div>
 
@@ -127,7 +112,7 @@
     <div class="card result">
       <div class="score" id="rScore">0/10</div>
       <div class="sub" id="rSub"></div>
-      <div class="explain" id="rBest"></div>
+      <div class="result-badges" id="rBadges"></div>
       <div class="row">
         <button class="btn ghost" onclick="goHome()">返回首页</button>
         <button class="btn" onclick="retry()">再来一组</button>
@@ -138,10 +123,11 @@
   <!-- 错题本 -->
   <div id="wrongbook" class="hidden">
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <strong>错题本</strong>
+      <div class="section-header">
+        <strong>📕 错题本</strong>
         <button class="btn ghost" style="flex:0;padding:8px 12px;font-size:13px" onclick="clearWrong()">清空</button>
       </div>
+      <input class="wb-search" id="wbSearch" placeholder="搜索单词或释义..." oninput="filterWrong()" />
       <div id="wbList"></div>
       <div class="row"><button class="btn" onclick="goHome()">返回首页</button></div>
     </div>
@@ -156,591 +142,129 @@
         <div class="ph" id="fPh"></div>
         <div class="pos" id="fPos"></div>
         <div class="mean hidden" id="fMean"></div>
+        <div class="ex hidden" id="fExample"></div>
         <div class="hint" id="fHint">点击卡片看释义</div>
+      </div>
+      <div class="speak-row">
+        <button class="speak-btn" id="fSpeakBtn" onclick="event.stopPropagation(); speak($('fWord').textContent)">🔊</button>
       </div>
       <div class="flipbtns">
         <button class="btn ghost" onclick="flashNav(-1)">上一个</button>
         <button class="btn" onclick="flashNav(1)">下一个</button>
       </div>
+      <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:8px">空格翻面 · 左右切换</p>
     </div>
   </div>
 
-  <footer>由 <b>WorkBuddy 混元 Hy3</b> 生成 · 数据存于本地浏览器，刷新不丢失</footer>
+  <!-- 自定义单词 -->
+  <div id="custom" class="hidden">
+    <div class="card">
+      <div class="section-header">
+        <strong>✍️ 我的单词本</strong>
+        <button class="btn" style="flex:0;padding:8px 14px;font-size:13px" onclick="openCustomModal('add')">+ 添加</button>
+      </div>
+      <p style="font-size:12px;color:var(--sub);margin-bottom:10px">添加你自己的单词，它们会自动加入练习题库</p>
+      <div id="cwList"></div>
+      <div class="row"><button class="btn ghost" onclick="goHome()">返回首页</button></div>
+    </div>
+  </div>
+
+  <footer>高考英语单词练习 · 间隔重复记忆 · 数据存于本地浏览器</footer>
 </div>
+
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script>
-/* ===== 高考英语单词库（词, 音标, 词性, 释义） ===== */
-const RAW = [
-["ability","/əˈbɪləti/","n.","能力；才能"],["absent","/ˈæbsənt/","adj.","缺席的"],["absorb","/əbˈzɔːb/","v.","吸收；使专心"],
-["academic","/ˌækəˈdemɪk/","adj.","学术的"],["accept","/əkˈsept/","v.","接受"],["access","/ˈækses/","n./v.","通道；使用机会"],
-["accident","/ˈæksɪdənt/","n.","事故；意外"],["achieve","/əˈtʃiːv/","v.","实现；达到"],["acquire","/əˈkwaɪə/","v.","获得；习得"],
-["active","/ˈæktɪv/","adj.","积极的；活跃的"],["adapt","/əˈdæpt/","v.","适应；改编"],["adjust","/əˈdʒʌst/","v.","调整；适应"],
-["admire","/ədˈmaɪə/","v.","钦佩；欣赏"],["adopt","/əˈdɒpt/","v.","采用；收养"],["advance","/ədˈvɑːns/","v.","前进；促进"],
-["advantage","/ədˈvɑːntɪdʒ/","n.","优点；好处"],["advice","/ədˈvaɪs/","n.","建议（不可数）"],["advise","/ədˈvaɪz/","v.","建议"],
-["afford","/əˈfɔːd/","v.","负担得起"],["aim","/eɪm/","n./v.","目标；瞄准"],["alarm","/əˈlɑːm/","n.","警报；闹钟"],
-["alcohol","/ˈælkəhɒl/","n.","酒精"],["allow","/əˈlaʊ/","v.","允许"],["alone","/əˈləʊn/","adj.","单独的"],
-["amazing","/əˈmeɪzɪŋ/","adj.","令人惊奇的"],["ancient","/ˈeɪnʃənt/","adj.","古代的"],["announce","/əˈnaʊns/","v.","宣布"],
-["anxious","/ˈæŋkʃəs/","adj.","焦虑的；渴望的"],["apologize","/əˈpɒlədʒaɪz/","v.","道歉"],["appear","/əˈpɪə/","v.","出现；似乎"],
-["apply","/əˈplaɪ/","v.","申请；应用"],["appreciate","/əˈpriːʃieɪt/","v.","欣赏；感激"],["approach","/əˈprəʊtʃ/","v./n.","接近；方法"],
-["approve","/əˈpruːv/","v.","批准；赞成"],["argue","/ˈɑːgjuː/","v.","争论；主张"],["arise","/əˈraɪz/","v.","出现；升起"],
-["arrange","/əˈreɪndʒ/","v.","安排；整理"],["arrival","/əˈraɪvl/","n.","到达"],["artist","/ˈɑːtɪst/","n.","艺术家"],
-["ashamed","/əˈʃeɪmd/","adj.","羞愧的"],["assist","/əˈsɪst/","v.","帮助；协助"],["assume","/əˈsjuːm/","v.","假定；承担"],
-["attach","/əˈtætʃ/","v.","附上；系"],["attack","/əˈtæk/","v.","攻击；袭击"],["attend","/əˈtend/","v.","出席；照料"],
-["attention","/əˈtenʃn/","n.","注意；关注"],["attitude","/ˈætɪtjuːd/","n.","态度"],["attract","/əˈtrækt/","v.","吸引"],
-["audience","/ˈɔːdiəns/","n.","观众；听众"],["author","/ˈɔːθə/","n.","作者"],["available","/əˈveɪləbl/","adj.","可获得的"],
-["average","/ˈævərɪdʒ/","adj.","平均的"],["avoid","/əˈvɔɪd/","v.","避免"],["aware","/əˈweə/","adj.","意识到的"],
-["awful","/ˈɔːfl/","adj.","糟糕的"],["balance","/ˈbæləns/","n./v.","平衡"],["bargain","/ˈbɑːgɪn/","n.","便宜货"],
-["basic","/ˈbeɪsɪk/","adj.","基本的"],["basis","/ˈbeɪsɪs/","n.","基础"],["bear","/beə/","v.","忍受；承受"],
-["beat","/biːt/","v.","打败；敲打"],["beautiful","/ˈbjuːtɪfl/","adj.","美丽的"],["become","/bɪˈkʌm/","v.","变得；成为"],
-["beg","/beɡ/","v.","恳求"],["begin","/bɪˈɡɪn/","v.","开始"],["behave","/bɪˈheɪv/","v.","表现"],
-["behavior","/bɪˈheɪvjə/","n.","行为"],["belong","/bɪˈlɒŋ/","v.","属于"],["benefit","/ˈbenɪfɪt/","n./v.","益处；受益"],
-["beyond","/bɪˈjɒnd/","prep.","超出"],["blank","/blæŋk/","adj.","空白的"],["blind","/blaɪnd/","adj.","盲的"],
-["block","/blɒk/","n.","街区；堵塞"],["blood","/blʌd/","n.","血"],["boil","/bɔɪl/","v.","煮沸"],
-["boost","/buːst/","v.","促进；提升"],["bored","/bɔːd/","adj.","无聊的"],["bother","/ˈbɒðə/","v.","打扰"],
-["brave","/breɪv/","adj.","勇敢的"],["break","/breɪk/","v.","打破"],["breath","/breθ/","n.","呼吸"],
-["breathe","/briːð/","v.","呼吸"],["brief","/briːf/","adj.","简短的"],["bright","/braɪt/","adj.","明亮的；聪明的"],
-["broad","/brɔːd/","adj.","宽的"],["brush","/brʌʃ/","n.","刷子"],["build","/bɪld/","v.","建造"],
-["burn","/bɜːn/","v.","燃烧"],["bury","/ˈberi/","v.","埋葬"],["business","/ˈbɪznəs/","n.","生意；事务"],
-["calculate","/ˈkælkjuleɪt/","v.","计算"],["calm","/kɑːm/","adj.","平静的"],["campaign","/kæmˈpeɪn/","n.","运动；战役"],
-["campus","/ˈkæmpəs/","n.","校园"],["cancel","/ˈkænsl/","v.","取消"],["cancer","/ˈkænsə/","n.","癌症"],
-["candidate","/ˈkændɪdət/","n.","候选人"],["capital","/ˈkæpɪtl/","n.","首都；资本"],["captain","/ˈkæptɪn/","n.","船长；队长"],
-["career","/kəˈrɪə/","n.","职业"],["careful","/ˈkeəfl/","adj.","小心的"],["carry","/ˈkæri/","v.","携带"],
-["case","/keɪs/","n.","情况；案例"],["cash","/kæʃ/","n.","现金"],["cast","/kɑːst/","v.","投射；扔"],
-["casual","/ˈkæʒuəl/","adj.","随便的"],["catch","/kætʃ/","v.","抓住；赶上"],["cause","/kɔːz/","n./v.","原因；导致"],
-["celebrate","/ˈselɪbreɪt/","v.","庆祝"],["central","/ˈsentrəl/","adj.","中心的"],["century","/ˈsentʃəri/","n.","世纪"],
-["certain","/ˈsɜːtn/","adj.","确定的"],["challenge","/ˈtʃælɪndʒ/","n.","挑战"],["champion","/ˈtʃæmpiən/","n.","冠军"],
-["chance","/tʃɑːns/","n.","机会"],["change","/tʃeɪndʒ/","v.","改变"],["charge","/tʃɑːdʒ/","n./v.","收费；负责"],
-["cheat","/tʃiːt/","v.","欺骗；作弊"],["cheer","/tʃɪə/","v.","欢呼"],["chief","/tʃiːf/","adj.","主要的"],
-["choice","/tʃɔɪs/","n.","选择"],["choose","/tʃuːz/","v.","选择"],["citizen","/ˈsɪtɪzn/","n.","公民"],
-["claim","/kleɪm/","v.","声称"],["clarify","/ˈklærəfaɪ/","v.","澄清"],["classic","/ˈklæsɪk/","adj.","经典的"],
-["climate","/ˈklaɪmət/","n.","气候"],["clinic","/ˈklɪnɪk/","n.","诊所"],["close","/kləʊz/","v.","关闭"],
-["collect","/kəˈlekt/","v.","收集"],["college","/ˈkɒlɪdʒ/","n.","学院"],["combine","/kəmˈbaɪn/","v.","结合"],
-["comfort","/ˈkʌmfət/","n.","舒适"],["command","/kəˈmɑːnd/","v.","命令"],["comment","/ˈkɒment/","n.","评论"],
-["commit","/kəˈmɪt/","v.","犯（错）；承诺"],["common","/ˈkɒmən/","adj.","常见的"],["communicate","/kəˈmjuːnɪkeɪt/","v.","交流"],
-["community","/kəˈmjuːnəti/","n.","社区"],["compare","/kəmˈpeə/","v.","比较"],["compete","/kəmˈpiːt/","v.","竞争"],
-["complain","/kəmˈpleɪn/","v.","抱怨"],["complete","/kəmˈpliːt/","adj.","完整的"],["complex","/ˈkɒmpleks/","adj.","复杂的"],
-["concept","/ˈkɒnsept/","n.","概念"],["concern","/kənˈsɜːn/","v.","关心；涉及"],["concert","/ˈkɒnsət/","n.","音乐会"],
-["conclude","/kənˈkluːd/","v.","总结"],["condition","/kənˈdɪʃn/","n.","条件"],["conduct","/kənˈdʌkt/","v.","进行；引导"],
-["confident","/ˈkɒnfɪdənt/","adj.","自信的"],["confirm","/kənˈfɜːm/","v.","确认"],["confuse","/kənˈfjuːz/","v.","使困惑"],
-["connect","/kəˈnekt/","v.","连接"],["consider","/kənˈsɪdə/","v.","考虑"],["consist","/kənˈsɪst/","v.","由…组成"],
-["construct","/kənˈstrʌkt/","v.","建造"],["contain","/kənˈteɪn/","v.","包含"],["continue","/kənˈtɪnjuː/","v.","继续"],
-["contribute","/kənˈtrɪbjuːt/","v.","贡献"],["control","/kənˈtrəʊl/","v.","控制"],["convince","/kənˈvɪns/","v.","使信服"],
-["correct","/kəˈrekt/","adj.","正确的"],["cost","/kɒst/","n.","花费；成本"],["courage","/ˈkʌrɪdʒ/","n.","勇气"],
-["course","/kɔːs/","n.","课程；过程"],["cover","/ˈkʌvə/","v.","覆盖"],["create","/kriˈeɪt/","v.","创造"],
-["credit","/ˈkredɪt/","n.","信用；学分"],["crime","/kraɪm/","n.","犯罪"],["crisis","/ˈkraɪsɪs/","n.","危机"],
-["critical","/ˈkrɪtɪkl/","adj.","关键的"],["crop","/krɒp/","n.","庄稼"],["crowd","/kraʊd/","n.","人群"],
-["cruel","/ˈkruːəl/","adj.","残忍的"],["culture","/ˈkʌltʃə/","n.","文化"],["cure","/kjʊə/","v.","治愈"],
-["curious","/ˈkjʊəriəs/","adj.","好奇的"],["current","/ˈkʌrənt/","adj.","当前的"],["custom","/ˈkʌstəm/","n.","习俗"],
-["damage","/ˈdæmɪdʒ/","v.","损害"],["danger","/ˈdeɪndʒə/","n.","危险"],["dare","/deə/","v.","敢"],
-["deal","/diːl/","v.","处理"],["debate","/dɪˈbeɪt/","n.","辩论"],["decade","/ˈdekeɪd/","n.","十年"],
-["decide","/dɪˈsaɪd/","v.","决定"],["declare","/dɪˈkleə/","v.","宣布"],["decline","/dɪˈklaɪn/","v.","下降；拒绝"],
-["defeat","/dɪˈfiːt/","v.","击败"],["defend","/dɪˈfend/","v.","防守"],["degree","/dɪˈɡriː/","n.","程度；学位"],
-["delay","/dɪˈleɪ/","v.","推迟"],["delight","/dɪˈlaɪt/","n.","高兴"],["deliver","/dɪˈlɪvə/","v.","递送"],
-["demand","/dɪˈmɑːnd/","v.","要求"],["depend","/dɪˈpend/","v.","依靠"],["describe","/dɪˈskraɪb/","v.","描述"],
-["design","/dɪˈzaɪn/","v.","设计"],["desire","/dɪˈzaɪə/","n.","渴望"],["detail","/ˈdiːteɪl/","n.","细节"],
-["develop","/dɪˈveləp/","v.","发展"],["devote","/dɪˈvəʊt/","v.","致力于"],["differ","/ˈdɪfə/","v.","不同"],
-["disappear","/ˌdɪsəˈpɪə/","v.","消失"],["discover","/dɪsˈkʌvə/","v.","发现"],["discuss","/dɪˈskʌs/","v.","讨论"],
-["disease","/dɪˈziːz/","n.","疾病"],["distance","/ˈdɪstəns/","n.","距离"],["divide","/dɪˈvaɪd/","v.","划分；除"],
-["double","/ˈdʌbl/","adj.","双倍的"],["doubt","/daʊt/","n.","怀疑"],["drive","/draɪv/","v.","驾驶"],
-["drop","/drɒp/","v.","落下"],["drug","/drʌɡ/","n.","药物"],["due","/djuː/","adj.","到期的"],
-["eager","/ˈiːɡə/","adj.","渴望的"],["earn","/ɜːn/","v.","赚得"],["earth","/ɜːθ/","n.","地球"],
-["economic","/ˌiːkəˈnɒmɪk/","adj.","经济的"],["educate","/ˈedʒukeɪt/","v.","教育"],["effect","/ɪˈfekt/","n.","影响；效果"],
-["effort","/ˈefət/","n.","努力"],["elect","/ɪˈlekt/","v.","选举"],["element","/ˈelɪmənt/","n.","元素；要素"],
-["embarrass","/ɪmˈbærəs/","v.","使尴尬"],["emerge","/ɪˈmɜːdʒ/","v.","出现"],["emotion","/ɪˈməʊʃn/","n.","情感"],
-["employ","/ɪmˈplɔɪ/","v.","雇用"],["enable","/ɪˈneɪbl/","v.","使能够"],["encourage","/ɪnˈkʌrɪdʒ/","v.","鼓励"],
-["enough","/ɪˈnʌf/","adj.","足够的"],["ensure","/ɪnˈʃʊə/","v.","确保"],["entire","/ɪnˈtaɪə/","adj.","整个的"],
-["environment","/ɪnˈvaɪrənmənt/","n.","环境"],["equal","/ˈiːkwəl/","adj.","平等的"],["equip","/ɪˈkwɪp/","v.","装备"],
-["escape","/ɪˈskeɪp/","v.","逃跑"],["especially","/ɪˈspeʃəli/","adv.","尤其"],["essential","/ɪˈsenʃl/","adj.","必要的"],
-["establish","/ɪˈstæblɪʃ/","v.","建立"],["evaluate","/ɪˈvæljueɪt/","v.","评价"],["event","/ɪˈvent/","n.","事件"],
-["examine","/ɪɡˈzæmɪn/","v.","检查"],["example","/ɪɡˈzɑːmpl/","n.","例子"],["excellent","/ˈeksələnt/","adj.","优秀的"],
-["except","/ɪkˈsept/","prep.","除…之外"],["exchange","/ɪksˈtʃeɪndʒ/","v.","交换"],["excite","/ɪkˈsaɪt/","v.","使兴奋"],
-["excuse","/ɪkˈskjuːz/","v.","原谅"],["exist","/ɪɡˈzɪst/","v.","存在"],["expect","/ɪkˈspekt/","v.","期待"],
-["experience","/ɪkˈspɪəriəns/","n.","经验；经历"],["explain","/ɪkˈspleɪn/","v.","解释"],["explore","/ɪkˈsplɔː/","v.","探索"],
-["express","/ɪkˈspres/","v.","表达"],["extra","/ˈekstrə/","adj.","额外的"],["extreme","/ɪkˈstriːm/","adj.","极端的"],
-["fail","/feɪl/","v.","失败"],["fair","/feə/","adj.","公平的"],["familiar","/fəˈmɪliə/","adj.","熟悉的"],
-["fancy","/ˈfænsi/","adj.","花哨的"],["fatal","/ˈfeɪtl/","adj.","致命的"],["fault","/fɔːlt/","n.","过错"],
-["favor","/ˈfeɪvə/","n.","喜爱；帮助"],["fear","/fɪə/","n.","害怕"],["feature","/ˈfiːtʃə/","n.","特征"],
-["fee","/fiː/","n.","费用"],["feed","/fiːd/","v.","喂养"],["feel","/fiːl/","v.","感觉"],
-["fellow","/ˈfeləʊ/","n.","同伴"],["female","/ˈfiːmeɪl/","adj.","女性的"],["fetch","/fetʃ/","v.","取来"],
-["fever","/ˈfiːvə/","n.","发烧"],["figure","/ˈfɪɡə/","n.","数字；人物"],["file","/faɪl/","n.","文件"],
-["fill","/fɪl/","v.","填满"],["final","/ˈfaɪnl/","adj.","最终的"],["finance","/faɪˈnæns/","n.","金融"],
-["firm","/fɜːm/","adj.","坚固的"],["fit","/fɪt/","adj.","合适的"],["fix","/fɪks/","v.","修理"],
-["flag","/flæɡ/","n.","旗帜"],["flat","/flæt/","adj.","平坦的"],["flexible","/ˈfleksəbl/","adj.","灵活的"],
-["float","/fləʊt/","v.","漂浮"],["flow","/fləʊ/","v.","流动"],["fluent","/ˈfluːənt/","adj.","流利的"],
-["focus","/ˈfəʊkəs/","v.","集中"],["fold","/fəʊld/","v.","折叠"],["follow","/ˈfɒləʊ/","v.","跟随"],
-["fond","/fɒnd/","adj.","喜爱的"],["fool","/fuːl/","n.","傻子"],["force","/fɔːs/","v.","迫使"],
-["foreign","/ˈfɒrən/","adj.","外国的"],["forest","/ˈfɒrɪst/","n.","森林"],["forget","/fəˈɡet/","v.","忘记"],
-["form","/fɔːm/","n.","形式"],["formal","/ˈfɔːml/","adj.","正式的"],["forward","/ˈfɔːwəd/","adv.","向前"],
-["found","/faʊnd/","v.","建立"],["free","/friː/","adj.","自由的"],["frequent","/ˈfriːkwənt/","adj.","频繁的"],
-["fresh","/freʃ/","adj.","新鲜的"],["friend","/frend/","n.","朋友"],["frighten","/ˈfraɪtn/","v.","使害怕"],
-["fruit","/fruːt/","n.","水果；成果"],["fuel","/ˈfjuːəl/","n.","燃料"],["full","/fʊl/","adj.","满的"],
-["fun","/fʌn/","n.","乐趣"],["function","/ˈfʌŋkʃn/","n.","功能"],["future","/ˈfjuːtʃə/","n.","未来"],
-["gain","/ɡeɪn/","v.","获得"],["gap","/ɡæp/","n.","差距"],["general","/ˈdʒenrəl/","adj.","一般的"],
-["generous","/ˈdʒenrəs/","adj.","慷慨的"],["gentle","/ˈdʒentl/","adj.","温和的"],["gift","/ɡɪft/","n.","礼物；天赋"],
-["global","/ˈɡləʊbl/","adj.","全球的"],["goal","/ɡəʊl/","n.","目标"],["gold","/ɡəʊld/","n.","黄金"],
-["goods","/ɡʊdz/","n.","商品"],["govern","/ˈɡʌvn/","v.","统治"],["grade","/ɡreɪd/","n.","成绩；等级"],
-["graduate","/ˈɡrædʒueɪt/","v.","毕业"],["grateful","/ˈɡreɪtfl/","adj.","感激的"],["great","/ɡreɪt/","adj.","伟大的"],
-["greet","/ɡriːt/","v.","问候"],["growth","/ɡrəʊθ/","n.","增长"],["guard","/ɡɑːd/","v.","保卫"],
-["guess","/ɡes/","v.","猜测"],["guide","/ɡaɪd/","n.","向导"],["guilty","/ˈɡɪlti/","adj.","有罪的"],
-["habit","/ˈhæbɪt/","n.","习惯"],["handle","/ˈhændl/","v.","处理"],["happen","/ˈhæpn/","v.","发生"],
-["happy","/ˈhæpi/","adj.","快乐的"],["hard","/hɑːd/","adj.","困难的；硬的"],["harm","/hɑːm/","n.","伤害"],
-["health","/helθ/","n.","健康"],["hear","/hɪə/","v.","听见"],["heart","/hɑːt/","n.","心脏；心"],
-["heavy","/ˈhevi/","adj.","重的"],["height","/haɪt/","n.","高度"],["hero","/ˈhɪərəʊ/","n.","英雄"],
-["hide","/haɪd/","v.","隐藏"],["high","/haɪ/","adj.","高的"],["hire","/ˈhaɪə/","v.","雇佣"],
-["honest","/ˈɒnɪst/","adj.","诚实的"],["honor","/ˈɒnə/","n.","荣誉"],["hope","/həʊp/","n.","希望"],
-["horror","/ˈhɒrə/","n.","恐惧"],["host","/həʊst/","n.","主人；主持人"],["humor","/ˈhjuːmə/","n.","幽默"],
-["hunger","/ˈhʌŋɡə/","n.","饥饿"],["hunt","/hʌnt/","v.","狩猎；寻找"],["hurry","/ˈhʌri/","v.","匆忙"],
-["idea","/aɪˈdɪə/","n.","想法"],["identify","/aɪˈdentɪfaɪ/","v.","识别"],["ignore","/ɪɡˈnɔː/","v.","忽视"],
-["illness","/ˈɪlnəs/","n.","疾病"],["image","/ˈɪmɪdʒ/","n.","形象；图像"],["imagine","/ɪˈmædʒɪn/","v.","想象"],
-["immediate","/ɪˈmiːdiət/","adj.","立即的"],["impact","/ˈɪmpækt/","n.","影响"],["import","/ˈɪmpɔːt/","n.","进口；重要性"],
-["improve","/ɪmˈpruːv/","v.","改善"],["include","/ɪnˈkluːd/","v.","包括"],["increase","/ɪnˈkriːs/","v.","增加"],
-["indeed","/ɪnˈdiːd/","adv.","确实"],["independent","/ˌɪndɪˈpendənt/","adj.","独立的"],["indicate","/ˈɪndɪkeɪt/","v.","表明"],
-["industry","/ˈɪndəstri/","n.","工业"],["influence","/ˈɪnfluəns/","n.","影响"],["inform","/ɪnˈfɔːm/","v.","通知"],
-["injure","/ˈɪndʒə/","v.","伤害"],["innocent","/ˈɪnəsnt/","adj.","无辜的"],["insist","/ɪnˈsɪst/","v.","坚持"],
-["inspire","/ɪnˈspaɪə/","v.","鼓舞"],["install","/ɪnˈstɔːl/","v.","安装"],["instant","/ˈɪnstənt/","adj.","立即的"],
-["instead","/ɪnˈsted/","adv.","代替"],["intend","/ɪnˈtend/","v.","打算"],["interest","/ˈɪntrəst/","n.","兴趣；利息"],
-["interview","/ˈɪntəvjuː/","n.","面试；采访"],["introduce","/ˌɪntrəˈdjuːs/","v.","介绍"],["invent","/ɪnˈvent/","v.","发明"],
-["invest","/ɪnˈvest/","v.","投资"],["invite","/ɪnˈvaɪt/","v.","邀请"],["involve","/ɪnˈvɒlv/","v.","涉及"],
-["issue","/ˈɪʃuː/","n.","问题；发行"],["item","/ˈaɪtəm/","n.","项目；物品"],["join","/dʒɔɪn/","v.","加入；连接"],
-["journey","/ˈdʒɜːni/","n.","旅程"],["joy","/dʒɔɪ/","n.","欢乐"],["judge","/dʒʌdʒ/","v.","判断；法官"],
-["jump","/dʒʌmp/","v.","跳"],["justice","/ˈdʒʌstɪs/","n.","正义"],["keep","/kiːp/","v.","保持"],
-["key","/kiː/","n.","钥匙；关键"],["kill","/kɪl/","v.","杀死"],["kind","/kaɪnd/","adj./n.","善良的；种类"],
-["knowledge","/ˈnɒlɪdʒ/","n.","知识"],["lack","/læk/","v.","缺乏"],["language","/ˈlæŋɡwɪdʒ/","n.","语言"],
-["laugh","/lɑːf/","v.","笑"],["launch","/lɔːntʃ/","v.","发射；发起"],["law","/lɔː/","n.","法律"],
-["lead","/liːd/","v.","领导；通向"],["learn","/lɜːn/","v.","学习"],["leave","/liːv/","v.","离开；留下"],
-["lecture","/ˈlektʃə/","n.","讲座"],["legal","/ˈliːɡl/","adj.","合法的"],["lend","/lend/","v.","借出"],
-["less","/les/","adj.","更少的"],["lesson","/ˈlesn/","n.","课；教训"],["level","/ˈlevl/","n.","水平；等级"],
-["liberty","/ˈlɪbəti/","n.","自由"],["lie","/laɪ/","v.","躺；说谎"],["light","/laɪt/","n./adj.","光；轻的"],
-["limit","/ˈlɪmɪt/","n.","限制"],["link","/lɪŋk/","v.","连接"],["list","/lɪst/","n.","清单"],
-["listen","/ˈlɪsn/","v.","听"],["live","/lɪv/","v.","居住；生活"],["local","/ˈləʊkl/","adj.","当地的"],
-["lock","/lɒk/","v.","锁"],["lonely","/ˈləʊnli/","adj.","孤独的"],["long","/lɒŋ/","adj.","长的"],
-["lose","/luːz/","v.","失去"],["loss","/lɒs/","n.","损失"],["loud","/laʊd/","adj.","大声的"],
-["love","/lʌv/","v.","爱"],["luck","/lʌk/","n.","运气"],["machine","/məˈʃiːn/","n.","机器"],
-["mad","/mæd/","adj.","疯狂的；生气的"],["magic","/ˈmædʒɪk/","n.","魔法"],["main","/meɪn/","adj.","主要的"],
-["maintain","/meɪnˈteɪn/","v.","维持"],["major","/ˈmeɪdʒə/","adj.","主要的；专业"],["majority","/məˈdʒɒrəti/","n.","大多数"],
-["manage","/ˈmænɪdʒ/","v.","管理；设法"],["manner","/ˈmænə/","n.","方式；礼貌"],["march","/mɑːtʃ/","v.","行进"],
-["mark","/mɑːk/","n./v.","标记；分数"],["market","/ˈmɑːkɪt/","n.","市场"],["marry","/ˈmæri/","v.","结婚"],
-["mass","/mæs/","n.","群众；大量"],["master","/ˈmɑːstə/","v.","掌握"],["material","/məˈtɪəriəl/","n.","材料"],
-["matter","/ˈmætə/","n.","事情"],["mature","/məˈtʃʊə/","adj.","成熟的"],["mean","/miːn/","v.","意思是"],
-["measure","/ˈmeʒə/","v.","测量"],["medical","/ˈmedɪkl/","adj.","医学的"],["meet","/miːt/","v.","遇见"],
-["melt","/melt/","v.","融化"],["member","/ˈmembə/","n.","成员"],["memory","/ˈmeməri/","n.","记忆"],
-["mention","/ˈmenʃn/","v.","提到"],["message","/ˈmesɪdʒ/","n.","信息"],["method","/ˈmeθəd/","n.","方法"],
-["middle","/ˈmɪdl/","n.","中间"],["mind","/maɪnd/","n.","头脑；介意"],["minister","/ˈmɪnɪstə/","n.","部长"],
-["minor","/ˈmaɪnə/","adj.","较小的；次要的"],["miss","/mɪs/","v.","错过；想念"],["mistake","/mɪˈsteɪk/","n.","错误"],
-["mix","/mɪks/","v.","混合"],["model","/ˈmɒdl/","n.","模型；模范"],["moderate","/ˈmɒdərət/","adj.","适度的"],
-["modern","/ˈmɒdn/","adj.","现代的"],["modest","/ˈmɒdɪst/","adj.","谦虚的"],["moment","/ˈməʊmənt/","n.","时刻"],
-["monitor","/ˈmɒnɪtə/","n.","班长；显示器"],["moral","/ˈmɒrəl/","adj.","道德的"],["motor","/ˈməʊtə/","n.","发动机"],
-["mount","/maʊnt/","v.","登上；挂载"],["mouse","/maʊs/","n.","老鼠；鼠标"],["move","/muːv/","v.","移动；感动"],
-["much","/mʌtʃ/","adj.","许多"],["music","/ˈmjuːzɪk/","n.","音乐"],["mystery","/ˈmɪstri/","n.","神秘"],
-["narrow","/ˈnærəʊ/","adj.","狭窄的"],["nation","/ˈneɪʃn/","n.","国家；民族"],["native","/ˈneɪtɪv/","adj.","本地的"],
-["nature","/ˈneɪtʃə/","n.","自然；本性"],["near","/nɪə/","adj.","近的"],["neat","/niːt/","adj.","整洁的"],
-["necessary","/ˈnesəsəri/","adj.","必要的"],["need","/niːd/","v.","需要"],["negative","/ˈneɡətɪv/","adj.","消极的；负的"],
-["neighbor","/ˈneɪbə/","n.","邻居"],["nerve","/nɜːv/","n.","神经"],["neutral","/ˈnjuːtrəl/","adj.","中立的"],
-["noise","/nɔɪz/","n.","噪音"],["normal","/ˈnɔːml/","adj.","正常的"],["note","/nəʊt/","n.","笔记；注释"],
-["notice","/ˈnəʊtɪs/","v.","注意到"],["novel","/ˈnɒvl/","n.","小说"],["number","/ˈnʌmbə/","n.","数字；号码"],
-["obey","/əˈbeɪ/","v.","服从"],["object","/ˈɒbdʒɪkt/","n.","物体；对象"],["observe","/əbˈzɜːv/","v.","观察"],
-["obtain","/əbˈteɪn/","v.","获得"],["obvious","/ˈɒbviəs/","adj.","明显的"],["occasion","/əˈkeɪʒn/","n.","场合"],
-["occupy","/ˈɒkjupaɪ/","v.","占据"],["occur","/əˈkɜː/","v.","发生"],["offer","/ˈɒfə/","v.","提供"],
-["official","/əˈfɪʃl/","adj.","官方的"],["oil","/ɔɪl/","n.","油"],["operate","/ˈɒpəreɪt/","v.","操作；运转"],
-["opinion","/əˈpɪnjən/","n.","意见"],["opportunity","/ˌɒpəˈtjuːnəti/","n.","机会"],["oppose","/əˈpəʊz/","v.","反对"],
-["optimistic","/ˌɒptɪˈmɪstɪk/","adj.","乐观的"],["option","/ˈɒpʃn/","n.","选择"],["orange","/ˈɒrɪndʒ/","n.","橙子；橙色"],
-["order","/ˈɔːdə/","n.","命令；顺序"],["ordinary","/ˈɔːdnri/","adj.","普通的"],["organize","/ˈɔːɡənaɪz/","v.","组织"],
-["origin","/ˈɒrɪdʒɪn/","n.","起源"],["otherwise","/ˈʌðəwaɪz/","adv.","否则"],["outcome","/ˈaʊtkʌm/","n.","结果"],
-["outdoor","/ˈaʊtdɔː/","adj.","户外的"],["outline","/ˈaʊtlaɪn/","n.","大纲"],["output","/ˈaʊtpʊt/","n.","产出"],
-["overcome","/ˌəʊvəˈkʌm/","v.","克服"],["overlook","/ˌəʊvəˈlʊk/","v.","忽视；俯瞰"],["owe","/əʊ/","v.","欠；归功于"],
-["own","/əʊn/","v.","拥有"],["owner","/ˈəʊnə/","n.","所有者"],["pack","/pæk/","v.","打包"],
-["pain","/peɪn/","n.","疼痛"],["paint","/peɪnt/","v.","绘画"],["park","/pɑːk/","n.","公园"],
-["part","/pɑːt/","n.","部分"],["participate","/pɑːˈtɪsɪpeɪt/","v.","参加"],["particular","/pəˈtɪkjələ/","adj.","特别的"],
-["partner","/ˈpɑːtnə/","n.","伙伴"],["pass","/pɑːs/","v.","通过；传递"],["passion","/ˈpæʃn/","n.","热情"],
-["past","/pɑːst/","adj.","过去的"],["patient","/ˈpeɪʃnt/","adj.","耐心的"],["pattern","/ˈpætn/","n.","模式"],
-["pay","/peɪ/","v.","支付"],["peace","/piːs/","n.","和平"],["perfect","/ˈpɜːfɪkt/","adj.","完美的"],
-["perform","/pəˈfɔːm/","v.","执行；表演"],["perhaps","/pəˈhæps/","adv.","也许"],["period","/ˈpɪəriəd/","n.","时期"],
-["permit","/pəˈmɪt/","v.","允许"],["person","/ˈpɜːsn/","n.","人"],["persuade","/pəˈsweɪd/","v.","说服"],
-["physical","/ˈfɪzɪkl/","adj.","身体的；物理的"],["picture","/ˈpɪktʃə/","n.","图片"],["piece","/piːs/","n.","片；块"],
-["pilot","/ˈpaɪlət/","n.","飞行员"],["pity","/ˈpɪti/","n.","遗憾"],["place","/pleɪs/","n.","地方"],
-["plan","/plæn/","n.","计划"],["plant","/plɑːnt/","n.","植物；工厂"],["play","/pleɪ/","v.","玩；演奏"],
-["please","/pliːz/","v.","使高兴"],["pleasure","/ˈpleʒə/","n.","愉快"],["plenty","/ˈplenti/","n.","大量"],
-["plot","/plɒt/","n.","情节；小块土地"],["plug","/plʌɡ/","n.","插头"],["point","/pɔɪnt/","n.","点；要点"],
-["poison","/ˈpɔɪzn/","n.","毒药"],["pole","/pəʊl/","n.","杆；极"],["polite","/pəˈlaɪt/","adj.","有礼貌的"],
-["pollute","/pəˈluːt/","v.","污染"],["poor","/pʊə/","adj.","贫穷的"],["popular","/ˈpɒpjələ/","adj.","受欢迎的"],
-["position","/pəˈzɪʃn/","n.","位置；职位"],["positive","/ˈpɒzətɪv/","adj.","积极的；正的"],["possess","/pəˈzes/","v.","拥有"],
-["possible","/ˈpɒsəbl/","adj.","可能的"],["post","/pəʊst/","n.","邮政；岗位"],["power","/ˈpaʊə/","n.","力量；权力"],
-["practice","/ˈpræktɪs/","n.","练习"],["praise","/preɪz/","v.","表扬"],["pray","/preɪ/","v.","祈祷"],
-["prefer","/prɪˈfɜː/","v.","更喜欢"],["prepare","/prɪˈpeə/","v.","准备"],["present","/ˈpreznt/","n./adj.","礼物；现在的"],
-["pressure","/ˈpreʃə/","n.","压力"],["pretend","/prɪˈtend/","v.","假装"],["prevent","/prɪˈvent/","v.","防止"],
-["price","/praɪs/","n.","价格"],["pride","/praɪd/","n.","骄傲"],["primary","/ˈpraɪməri/","adj.","主要的；初级的"],
-["print","/prɪnt/","v.","打印"],["prison","/ˈprɪzn/","n.","监狱"],["private","/ˈpraɪvət/","adj.","私人的"],
-["prize","/praɪz/","n.","奖品"],["probable","/ˈprɒbəbl/","adj.","可能的"],["problem","/ˈprɒbləm/","n.","问题"],
-["process","/ˈprəʊses/","n.","过程"],["produce","/prəˈdjuːs/","v.","生产"],["product","/ˈprɒdʌkt/","n.","产品"],
-["profit","/ˈprɒfɪt/","n.","利润"],["program","/ˈprəʊɡræm/","n.","节目；程序"],["progress","/ˈprəʊɡres/","n.","进步"],
-["project","/ˈprɒdʒekt/","n.","项目"],["promise","/ˈprɒmɪs/","n.","承诺"],["promote","/prəˈməʊt/","v.","促进；提升"],
-["pronounce","/prəˈnaʊns/","v.","发音"],["proper","/ˈprɒpə/","adj.","适当的"],["protect","/prəˈtekt/","v.","保护"],
-["proud","/praʊd/","adj.","骄傲的；自豪的"],["prove","/pruːv/","v.","证明"],["provide","/prəˈvaɪd/","v.","提供"],
-["public","/ˈpʌblɪk/","adj.","公众的"],["publish","/ˈpʌblɪʃ/","v.","出版"],["pull","/pʊl/","v.","拉"],
-["punish","/ˈpʌnɪʃ/","v.","惩罚"],["purpose","/ˈpɜːpəs/","n.","目的"],["push","/pʊʃ/","v.","推"],
-["qualify","/ˈkwɒlɪfaɪ/","v.","使合格"],["quality","/ˈkwɒləti/","n.","质量；品质"],["quarrel","/ˈkwɒrəl/","v.","争吵"],
-["quarter","/ˈkwɔːtə/","n.","四分之一"],["question","/ˈkwestʃən/","n.","问题"],["quick","/kwɪk/","adj.","快的"],
-["quiet","/ˈkwaɪət/","adj.","安静的"],["quite","/kwaɪt/","adv.","相当"],["quit","/kwɪt/","v.","放弃；离开"],
-["race","/reɪs/","n.","种族；赛跑"],["rail","/reɪl/","n.","铁轨"],["rain","/reɪn/","n.","雨"],
-["raise","/reɪz/","v.","提高；抚养"],["range","/reɪndʒ/","n.","范围"],["rank","/ræŋk/","n.","等级；排名"],
-["rapid","/ˈræpɪd/","adj.","快速的"],["rare","/reə/","adj.","罕见的"],["rate","/reɪt/","n.","比率；速度"],
-["rather","/ˈrɑːðə/","adv.","宁愿；相当"],["reach","/riːtʃ/","v.","到达；伸手"],["react","/riˈækt/","v.","反应"],
-["ready","/ˈredi/","adj.","准备好的"],["real","/rɪəl/","adj.","真实的"],["realize","/ˈrɪəlaɪz/","v.","意识到；实现"],
-["reason","/ˈriːzn/","n.","原因"],["receive","/rɪˈsiːv/","v.","收到"],["recent","/ˈriːsnt/","adj.","最近的"],
-["recognize","/ˈrekəɡnaɪz/","v.","认出"],["recommend","/ˌrekəˈmend/","v.","推荐"],["record","/ˈrekɔːd/","n.","记录"],
-["reduce","/rɪˈdjuːs/","v.","减少"],["reflect","/rɪˈflekt/","v.","反映；反射"],["reform","/rɪˈfɔːm/","n.","改革"],
-["refuse","/rɪˈfjuːz/","v.","拒绝"],["regard","/rɪˈɡɑːd/","v.","看作；尊重"],["region","/ˈriːdʒən/","n.","地区"],
-["regret","/rɪˈɡret/","v.","后悔"],["regular","/ˈreɡjələ/","adj.","规律的"],["relate","/rɪˈleɪt/","v.","联系"],
-["relax","/rɪˈlæks/","v.","放松"],["release","/rɪˈliːs/","v.","释放；发布"],["relevant","/ˈreləvənt/","adj.","相关的"],
-["relief","/rɪˈliːf/","n.","宽慰"],["rely","/rɪˈlaɪ/","v.","依赖"],["remain","/rɪˈmeɪn/","v.","保持；剩余"],
-["remember","/rɪˈmembə/","v.","记得"],["remind","/rɪˈmaɪnd/","v.","提醒"],["remove","/rɪˈmuːv/","v.","移除"],
-["replace","/rɪˈpleɪs/","v.","替换"],["reply","/rɪˈplaɪ/","v.","回复"],["report","/rɪˈpɔːt/","n.","报告"],
-["represent","/ˌreprɪˈzent/","v.","代表"],["request","/rɪˈkwest/","n.","请求"],["require","/rɪˈkwaɪə/","v.","需要"],
-["research","/rɪˈsɜːtʃ/","n.","研究"],["respect","/rɪˈspekt/","v.","尊重"],["respond","/rɪˈspɒnd/","v.","回应"],
-["responsible","/rɪˈspɒnsəbl/","adj.","负责的"],["rest","/rest/","n.","休息；剩余"],["result","/rɪˈzʌlt/","n.","结果"],
-["retire","/rɪˈtaɪə/","v.","退休"],["return","/rɪˈtɜːn/","v.","返回"],["reveal","/rɪˈviːl/","v.","揭示"],
-["review","/rɪˈvjuː/","v.","复习；评论"],["reward","/rɪˈwɔːd/","n.","奖励"],["rich","/rɪtʃ/","adj.","富有的"],
-["ride","/raɪd/","v.","骑"],["ring","/rɪŋ/","n.","戒指；铃声"],["rise","/raɪz/","v.","上升"],
-["risk","/rɪsk/","n.","风险"],["road","/rəʊd/","n.","道路"],["rob","/rɒb/","v.","抢劫"],
-["role","/rəʊl/","n.","角色"],["room","/ruːm/","n.","房间"],["root","/ruːt/","n.","根"],
-["rough","/rʌf/","adj.","粗糙的"],["round","/raʊnd/","adj.","圆的"],["route","/ruːt/","n.","路线"],
-["routine","/ruːˈtiːn/","n.","常规"],["row","/rəʊ/","n.","排；行"],["royal","/ˈrɔɪəl/","adj.","皇家的"],
-["rude","/ruːd/","adj.","粗鲁的"],["ruin","/ˈruːɪn/","v.","毁灭"],["rule","/ruːl/","n.","规则"],
-["run","/rʌn/","v.","跑；经营"],["rush","/rʌʃ/","v.","冲；匆忙"],["sad","/sæd/","adj.","悲伤的"],
-["safe","/seɪf/","adj.","安全的"],["sail","/seɪl/","v.","航行"],["salary","/ˈsæləri/","n.","薪水"],
-["sale","/seɪl/","n.","销售"],["salt","/sɔːlt/","n.","盐"],["same","/seɪm/","adj.","相同的"],
-["sample","/ˈsɑːmpl/","n.","样本"],["sand","/sænd/","n.","沙"],["satisfy","/ˈsætɪsfaɪ/","v.","使满意"],
-["save","/seɪv/","v.","拯救；节省"],["scan","/skæn/","v.","扫描"],["scarce","/skeəs/","adj.","稀少的"],
-["scare","/skeə/","v.","惊吓"],["scene","/siːn/","n.","场景"],["schedule","/ˈʃedjuːl/","n.","日程"],
-["scholar","/ˈskɒlə/","n.","学者"],["school","/skuːl/","n.","学校"],["science","/ˈsaɪəns/","n.","科学"],
-["score","/skɔː/","n.","分数"],["screen","/skriːn/","n.","屏幕"],["search","/sɜːtʃ/","v.","搜索"],
-["season","/ˈsiːzn/","n.","季节"],["seat","/siːt/","n.","座位"],["second","/ˈsekənd/","num.","第二"],
-["secret","/ˈsiːkrət/","n.","秘密"],["secure","/sɪˈkjʊə/","adj.","安全的"],["see","/siː/","v.","看见"],
-["seek","/siːk/","v.","寻找"],["seem","/siːm/","v.","似乎"],["select","/sɪˈlekt/","v.","选择"],
-["sell","/sel/","v.","卖"],["send","/send/","v.","发送"],["senior","/ˈsiːniə/","adj.","高级的；年长的"],
-["sense","/sens/","n.","感觉；意义"],["sentence","/ˈsentəns/","n.","句子"],["separate","/ˈsepəreɪt/","v.","分开"],
-["serious","/ˈsɪəriəs/","adj.","严重的；严肃的"],["serve","/sɜːv/","v.","服务"],["set","/set/","v.","设置"],
-["settle","/ˈsetl/","v.","解决；定居"],["several","/ˈsevrəl/","adj.","几个"],["shadow","/ˈʃædəʊ/","n.","影子"],
-["shake","/ʃeɪk/","v.","摇动"],["shape","/ʃeɪp/","n.","形状"],["share","/ʃeə/","v.","分享"],
-["sharp","/ʃɑːp/","adj.","锋利的；敏锐的"],["shelter","/ˈʃeltə/","n.","庇护所"],["shine","/ʃaɪn/","v.","发光"],
-["ship","/ʃɪp/","n.","船"],["shock","/ʃɒk/","n.","震惊"],["shoot","/ʃuːt/","v.","射击；拍摄"],
-["shop","/ʃɒp/","n.","商店"],["short","/ʃɔːt/","adj.","短的"],["shoulder","/ˈʃəʊldə/","n.","肩膀"],
-["show","/ʃəʊ/","v.","展示"],["shrink","/ʃrɪŋk/","v.","收缩"],["shut","/ʃʌt/","v.","关闭"],
-["sick","/sɪk/","adj.","生病的"],["side","/saɪd/","n.","边"],["signal","/ˈsɪɡnəl/","n.","信号"],
-["significant","/sɪɡˈnɪfɪkənt/","adj.","重要的"],["silent","/ˈsaɪlənt/","adj.","沉默的"],["similar","/ˈsɪmələ/","adj.","相似的"],
-["simple","/ˈsɪmpl/","adj.","简单的"],["since","/sɪns/","conj.","自从；因为"],["sing","/sɪŋ/","v.","唱"],
-["single","/ˈsɪŋɡl/","adj.","单一的"],["sink","/sɪŋk/","v.","下沉"],["sit","/sɪt/","v.","坐"],
-["site","/saɪt/","n.","地点"],["situation","/ˌsɪtʃuˈeɪʃn/","n.","情况"],["size","/saɪz/","n.","尺寸"],
-["skill","/skɪl/","n.","技能"],["skin","/skɪn/","n.","皮肤"],["slip","/slɪp/","v.","滑倒；溜走"],
-["smooth","/smuːð/","adj.","光滑的"],["social","/ˈsəʊʃl/","adj.","社会的"],["soft","/sɒft/","adj.","柔软的"],
-["soil","/sɔɪl/","n.","土壤"],["soldier","/ˈsəʊldʒə/","n.","士兵"],["solid","/ˈsɒlɪd/","adj.","固体的"],
-["solve","/sɒlv/","v.","解决"],["some","/sʌm/","adj.","一些"],["sort","/sɔːt/","n.","种类"],
-["sound","/saʊnd/","n.","声音"],["source","/sɔːs/","n.","来源"],["space","/speɪs/","n.","空间"],
-["speak","/spiːk/","v.","说"],["special","/ˈspeʃl/","adj.","特别的"],["species","/ˈspiːʃiːz/","n.","物种"],
-["specific","/spəˈsɪfɪk/","adj.","具体的"],["speech","/spiːtʃ/","n.","演讲"],["speed","/spiːd/","n.","速度"],
-["spend","/spend/","v.","花费；度过"],["spirit","/ˈspɪrɪt/","n.","精神"],["split","/splɪt/","v.","分裂"],
-["spot","/spɒt/","n.","地点；斑点"],["spread","/spred/","v.","传播"],["spring","/sprɪŋ/","n.","春天；泉"],
-["square","/skweə/","n.","广场；正方形"],["stage","/steɪdʒ/","n.","舞台；阶段"],["stand","/stænd/","v.","站立；忍受"],
-["star","/stɑː/","n.","星；明星"],["start","/stɑːt/","v.","开始"],["state","/steɪt/","n.","状态；国家"],
-["station","/ˈsteɪʃn/","n.","车站"],["stay","/steɪ/","v.","停留"],["steady","/ˈstedi/","adj.","稳定的"],
-["steal","/stiːl/","v.","偷"],["step","/step/","n.","步骤；脚步"],["stick","/stɪk/","v.","粘；坚持"],
-["still","/stɪl/","adv.","仍然"],["stomach","/ˈstʌmək/","n.","胃"],["stop","/stɒp/","v.","停止"],
-["store","/stɔː/","v.","储存；商店"],["storm","/stɔːm/","n.","暴风雨"],["story","/ˈstɔːri/","n.","故事"],
-["strange","/streɪndʒ/","adj.","奇怪的；陌生的"],["street","/striːt/","n.","街道"],["strength","/streŋθ/","n.","力量"],
-["strike","/straɪk/","v.","罢工；打击"],["strong","/strɒŋ/","adj.","强壮的"],["structure","/ˈstrʌktʃə/","n.","结构"],
-["struggle","/ˈstrʌɡl/","v.","挣扎；奋斗"],["student","/ˈstjuːdnt/","n.","学生"],["study","/ˈstʌdi/","v.","学习"],
-["stupid","/ˈstjuːpɪd/","adj.","愚蠢的"],["subject","/ˈsʌbdʒɪkt/","n.","主题；科目"],["succeed","/səkˈsiːd/","v.","成功"],
-["success","/səkˈses/","n.","成功"],["such","/sʌtʃ/","adj.","这样的"],["sudden","/ˈsʌdn/","adj.","突然的"],
-["suffer","/ˈsʌfə/","v.","遭受"],["suggest","/səˈdʒest/","v.","建议"],["suit","/suːt/","v.","适合"],
-["summer","/ˈsʌmə/","n.","夏天"],["sun","/sʌn/","n.","太阳"],["support","/səˈpɔːt/","v.","支持"],
-["suppose","/səˈpəʊz/","v.","假设"],["sure","/ʃʊə/","adj.","确定的"],["surface","/ˈsɜːfɪs/","n.","表面"],
-["surprise","/səˈpraɪz/","n.","惊讶"],["surround","/səˈraʊnd/","v.","包围"],["survey","/ˈsɜːveɪ/","n.","调查"],
-["survive","/səˈvaɪv/","v.","幸存"],["suspect","/səˈspekt/","v.","怀疑"],["swim","/swɪm/","v.","游泳"],
-["symbol","/ˈsɪmbl/","n.","象征；符号"],["system","/ˈsɪstəm/","n.","系统"],["table","/ˈteɪbl/","n.","桌子"],
-["talent","/ˈtælənt/","n.","天赋"],["talk","/tɔːk/","v.","谈话"],["tall","/tɔːl/","adj.","高的"],
-["taste","/teɪst/","v.","品尝；口味"],["tax","/tæks/","n.","税"],["teach","/tiːtʃ/","v.","教"],
-["team","/tiːm/","n.","团队"],["tear","/tɪə/","n.","眼泪"],["technical","/ˈteknɪkl/","adj.","技术的"],
-["technology","/tekˈnɒlədʒi/","n.","科技"],["tell","/tel/","v.","告诉"],["temperature","/ˈtemprətʃə/","n.","温度"],
-["tend","/tend/","v.","倾向于"],["tension","/ˈtenʃn/","n.","紧张"],["term","/tɜːm/","n.","学期；术语"],
-["terrible","/ˈterəbl/","adj.","糟糕的"],["test","/test/","n.","测试"],["thank","/θæŋk/","v.","感谢"],
-["theme","/θiːm/","n.","主题"],["theory","/ˈθɪəri/","n.","理论"],["there","/ðeə/","adv.","那里"],
-["thick","/θɪk/","adj.","厚的"],["thin","/θɪn/","adj.","薄的"],["think","/θɪŋk/","v.","思考"],
-["thirst","/θɜːst/","n.","口渴"],["though","/ðəʊ/","conj.","虽然"],["thought","/θɔːt/","n.","想法"],
-["threat","/θret/","n.","威胁"],["through","/θruː/","prep.","通过"],["throughout","/θruːˈaʊt/","prep.","贯穿"],
-["throw","/θrəʊ/","v.","扔"],["thus","/ðʌs/","adv.","因此"],["ticket","/ˈtɪkɪt/","n.","票"],
-["time","/taɪm/","n.","时间"],["tired","/ˈtaɪəd/","adj.","疲惫的"],["title","/ˈtaɪtl/","n.","标题"],
-["to","/tuː/","prep.","向"],["today","/təˈdeɪ/","n.","今天"],["together","/təˈɡeðə/","adv.","一起"],
-["tomorrow","/təˈmɒrəʊ/","n.","明天"],["tone","/təʊn/","n.","语气；音调"],["too","/tuː/","adv.","也"],
-["tool","/tuːl/","n.","工具"],["topic","/ˈtɒpɪk/","n.","话题"],["total","/ˈtəʊtl/","adj.","总的"],
-["touch","/tʌtʃ/","v.","触摸"],["tour","/tʊə/","n.","旅行"],["toward","/təˈwɔːd/","prep.","朝向"],
-["town","/taʊn/","n.","城镇"],["trade","/treɪd/","n.","贸易"],["traditional","/trəˈdɪʃənl/","adj.","传统的"],
-["traffic","/ˈtræfɪk/","n.","交通"],["train","/treɪn/","n.","火车；训练"],["transform","/trænsˈfɔːm/","v.","转变"],
-["translate","/trænsˈleɪt/","v.","翻译"],["transport","/trænˈspɔːt/","v.","运输"],["travel","/ˈtrævl/","v.","旅行"],
-["treat","/triːt/","v.","对待；治疗"],["treasure","/ˈtreʒə/","n.","宝藏"],["trouble","/ˈtrʌbl/","n.","麻烦"],
-["trust","/trʌst/","v.","信任"],["truth","/truːθ/","n.","真相"],["try","/traɪ/","v.","尝试"],
-["turn","/tɜːn/","v.","转向"],["type","/taɪp/","n.","类型"],["typical","/ˈtɪpɪkl/","adj.","典型的"],
-["ugly","/ˈʌɡli/","adj.","丑陋的"],["unable","/ʌnˈeɪbl/","adj.","不能的"],["uncle","/ˈʌŋkl/","n.","叔叔"],
-["under","/ˈʌndə/","prep.","在…下面"],["understand","/ˌʌndəˈstænd/","v.","理解"],["unfair","/ʌnˈfeə/","adj.","不公平的"],
-["unhappy","/ʌnˈhæpi/","adj.","不快乐的"],["uniform","/ˈjuːnɪfɔːm/","n.","制服"],["unique","/juˈniːk/","adj.","独特的"],
-["unit","/ˈjuːnɪt/","n.","单元"],["unite","/juˈnaɪt/","v.","联合"],["universe","/ˈjuːnɪvɜːs/","n.","宇宙"],
-["university","/ˌjuːnɪˈvɜːsəti/","n.","大学"],["unknown","/ʌnˈnəʊn/","adj.","未知的"],["unless","/ənˈles/","conj.","除非"],
-["until","/ənˈtɪl/","prep.","直到"],["unusual","/ʌnˈjuːʒuəl/","adj.","不寻常的"],["upon","/əˈpɒn/","prep.","在…上"],
-["upper","/ˈʌpə/","adj.","上部的"],["upset","/ʌpˈset/","adj.","心烦的"],["urban","/ˈɜːbən/","adj.","城市的"],
-["urge","/ɜːdʒ/","v.","敦促"],["use","/juːz/","v.","使用"],["usual","/ˈjuːʒuəl/","adj.","通常的"],
-["value","/ˈvæljuː/","n.","价值"],["variety","/vəˈraɪəti/","n.","多样；种类"],["various","/ˈveəriəs/","adj.","各种各样的"],
-["vary","/ˈveəri/","v.","变化"],["vast","/vɑːst/","adj.","广阔的"],["vegetable","/ˈvedʒtəbl/","n.","蔬菜"],
-["vehicle","/ˈviːəkl/","n.","车辆"],["view","/vjuː/","n.","观点；景色"],["village","/ˈvɪlɪdʒ/","n.","村庄"],
-["violence","/ˈvaɪələns/","n.","暴力"],["violent","/ˈvaɪələnt/","adj.","暴力的"],["virtue","/ˈvɜːtʃuː/","n.","美德"],
-["visible","/ˈvɪzəbl/","adj.","可见的"],["visit","/ˈvɪzɪt/","v.","拜访"],["voice","/vɔɪs/","n.","声音"],
-["volume","/ˈvɒljuːm/","n.","音量；体积"],["volunteer","/ˌvɒlənˈtɪə/","n.","志愿者"],["vote","/vəʊt/","v.","投票"],
-["voyage","/ˈvɔɪɪdʒ/","n.","航行"],["wage","/weɪdʒ/","n.","工资"],["wait","/weɪt/","v.","等待"],
-["wake","/weɪk/","v.","醒来"],["walk","/wɔːk/","v.","走"],["wall","/wɔːl/","n.","墙"],
-["want","/wɒnt/","v.","想要"],["war","/wɔː/","n.","战争"],["warm","/wɔːm/","adj.","温暖的"],
-["warn","/wɔːn/","v.","警告"],["wash","/wɒʃ/","v.","洗"],["waste","/weɪst/","v.","浪费"],
-["watch","/wɒtʃ/","v.","观看"],["water","/ˈwɔːtə/","n.","水"],["wave","/weɪv/","n.","波浪"],
-["weak","/wiːk/","adj.","虚弱的"],["wealth","/welθ/","n.","财富"],["wear","/weə/","v.","穿"],
-["weather","/ˈweðə/","n.","天气"],["wedding","/ˈwedɪŋ/","n.","婚礼"],["week","/wiːk/","n.","周"],
-["weigh","/weɪ/","v.","称重"],["welcome","/ˈwelkəm/","v.","欢迎"],["welfare","/ˈwelfeə/","n.","福利"],
-["well","/wel/","adv.","好"],["west","/west/","n.","西方"],["wet","/wet/","adj.","湿的"],
-["what","/wɒt/","pron.","什么"],["wheat","/wiːt/","n.","小麦"],["wheel","/wiːl/","n.","轮子"],
-["when","/wen/","adv.","何时"],["where","/weə/","adv.","哪里"],["whether","/ˈweðə/","conj.","是否"],
-["which","/wɪtʃ/","pron.","哪一个"],["while","/waɪl/","conj.","当…时"],["white","/waɪt/","adj.","白色的"],
-["who","/huː/","pron.","谁"],["whole","/həʊl/","adj.","整个的"],["whom","/huːm/","pron.","谁（宾格）"],
-["whose","/huːz/","pron.","谁的"],["wide","/waɪd/","adj.","宽的"],["wife","/waɪf/","n.","妻子"],
-["wild","/waɪld/","adj.","野生的"],["will","/wɪl/","v.","将"],["win","/wɪn/","v.","赢"],
-["wind","/wɪnd/","n.","风"],["window","/ˈwɪndəʊ/","n.","窗户"],["wine","/waɪn/","n.","酒"],
-["wing","/wɪŋ/","n.","翅膀"],["winter","/ˈwɪntə/","n.","冬天"],["wire","/ˈwaɪə/","n.","电线"],
-["wise","/waɪz/","adj.","明智的"],["wish","/wɪʃ/","v.","希望"],["with","/wɪð/","prep.","和"],
-["within","/wɪˈðɪn/","prep.","在…内"],["without","/wɪˈðaʊt/","prep.","没有"],["witness","/ˈwɪtnəs/","n.","目击者"],
-["wolf","/wʊlf/","n.","狼"],["woman","/ˈwʊmən/","n.","女人"],["wonder","/ˈwʌndə/","v.","想知道；惊奇"],
-["wood","/wʊd/","n.","木头"],["word","/wɜːd/","n.","单词；话语"],["work","/wɜːk/","v.","工作"],
-["world","/wɜːld/","n.","世界"],["worry","/ˈwʌri/","v.","担心"],["worse","/wɜːs/","adj.","更坏的"],
-["worst","/wɜːst/","adj.","最坏的"],["worth","/wɜːθ/","adj.","值得的"],["would","/wʊd/","v.","将会"],
-["wound","/wuːnd/","n.","伤口"],["write","/raɪt/","v.","写"],["wrong","/rɒŋ/","adj.","错误的"],
-["yard","/jɑːd/","n.","院子"],["year","/jɪə/","n.","年"],["yellow","/ˈjeləʊ/","adj.","黄色的"],
-["yes","/jes/","adv.","是"],["yesterday","/ˈjestədeɪ/","n.","昨天"],["yet","/jet/","adv.","还"],
-["you","/juː/","pron.","你"],["young","/jʌŋ/","adj.","年轻的"],["your","/jɔː/","pron.","你的"],
-["zero","/ˈzɪərəʊ/","n.","零"],["zone","/zəʊn/","n.","区域"],["zoo","/zuː/","n.","动物园"]
-];
-const BANK = RAW.map(([word,phonetic,pos,meaning])=>({word,phonetic,pos,meaning}));
-const TOTAL = BANK.length;
+<!-- 用户管理 Modal -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <h3>👥 选择学习者</h3>
+    <div class="user-list" id="userList"></div>
+    <label>创建新学习者</label>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <input type="text" id="newUserName" placeholder="输入名字" maxlength="12"
+        onkeydown="if(event.key==='Enter') createNewUser()" />
+      <button class="btn" style="flex:0;padding:10px 16px" onclick="createNewUser()">创建</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="hideModal('userModal')">关闭</button>
+    </div>
+  </div>
+</div>
 
-/* ===== 工具 ===== */
-function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function randInt(n){return Math.floor(Math.random()*n);}
-function pick(arr){return arr[randInt(arr.length)];}
-const $ = id => document.getElementById(id);
+<!-- 自定义单词 Modal -->
+<div class="modal-overlay" id="customModal">
+  <div class="modal">
+    <h3 id="customModalTitle">添加自定义单词</h3>
+    <label>单词 *</label>
+    <input type="text" id="cwWord" placeholder="如：serendipity" />
+    <label>音标</label>
+    <input type="text" id="cwPhonetic" placeholder="如：/ˌserənˈdɪpəti/" />
+    <label>词性</label>
+    <input type="text" id="cwPos" placeholder="如：n." />
+    <label>中文释义 *</label>
+    <input type="text" id="cwMeaning" placeholder="如：意外的好运" />
+    <label>英文例句</label>
+    <textarea id="cwExampleEn" placeholder="Finding this cafe was pure serendipity."></textarea>
+    <label>例句翻译</label>
+    <textarea id="cwExampleZh" placeholder="找到这家咖啡馆纯属意外之喜。"></textarea>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="hideModal('customModal')">取消</button>
+      <button class="btn" id="cwSave">保存</button>
+    </div>
+  </div>
+</div>
 
-/* ===== 题目生成引擎 ===== */
-function genMC(mode, fixedWord){
-  const target = fixedWord || pick(BANK);
-  const pool = BANK.filter(w => w.word !== target.word);
-  const wrong = shuffle(pool).slice(0,3);
-  let correctText, options;
-  if(mode === 'meaning'){
-    correctText = target.meaning;
-    options = [target.meaning, ...wrong.map(w => w.meaning)];
-  } else { // word
-    correctText = target.word;
-    options = [target.word, ...wrong.map(w => w.word)];
-  }
-  const opts = shuffle(options);
-  const answer = opts.indexOf(correctText);
-  return {kind:'mc', mode, target, options:opts, answer};
-}
-function genSpell(fixedWord){
-  const target = fixedWord || pick(BANK);
-  return {kind:'spell', target, answer:target.word};
-}
-function makeQuestion(mode, fixedWord){
-  if(mode === 'spell') return genSpell(fixedWord);
-  return genMC(mode, fixedWord);
-}
+<!-- 设置 Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <h3>⚙️ 设置</h3>
+    <div class="setting-row">
+      <div>
+        <div class="label">自动朗读</div>
+        <div class="desc">答题时自动播放单词发音</div>
+      </div>
+      <div class="toggle" id="toggleAutoSpeak"></div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="label">键盘快捷键</div>
+        <div class="desc">A-D 选答案 · 回车下一题 · 空格翻卡片</div>
+      </div>
+      <div class="toggle" id="toggleShortcuts"></div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="label">每日目标</div>
+        <div class="desc">每天计划练习的题数</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="number" id="dailyGoalInput" style="width:70px" min="5" max="200" />
+        <button class="mini-btn" id="saveDailyGoal">保存</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="label">外观</div>
+        <div class="desc">切换亮色/暗色主题</div>
+      </div>
+      <button class="mini-btn" onclick="toggleTheme()">切换</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="hideModal('settingsModal')">完成</button>
+    </div>
+  </div>
+</div>
 
-/* ===== 状态 ===== */
-let session = [], qIdx = 0, correctCount = 0, wrongThisRound = [], currentMode = 'smart';
-const LS_W = 'wb_vocab_wrong', LS_B = 'wb_vocab_best', LS_D = 'wb_vocab_done';
-
-function getWrong(){ try{return JSON.parse(localStorage.getItem(LS_W)||'{}');}catch(e){return {};} }
-function setWrong(o){ localStorage.setItem(LS_W, JSON.stringify(o)); }
-function getBest(){ try{return JSON.parse(localStorage.getItem(LS_B)||'{}');}catch(e){return {};} }
-function getDone(){ return parseInt(localStorage.getItem(LS_D)||'0',10); }
-
-/* ===== 首页统计 ===== */
-function refreshStats(){
-  const wb = getWrong(); const wc = Object.keys(wb).length;
-  const best = getBest();
-  const bestList = Object.values(best).filter(v=>typeof v==='number');
-  const bestPct = bestList.length ? Math.max(...bestList) : null;
-  $('sTotal').textContent = TOTAL;
-  $('sWrong').textContent = wc;
-  $('sDone').textContent = getDone();
-  $('sBest').textContent = bestPct==null ? '—' : bestPct + '%';
-  $('wbCount').textContent = '共 ' + wc + ' 条 · 点击管理';
-}
-
-/* ===== 模式入口 ===== */
-function startMode(mode){
-  currentMode = mode;
-  session = [];
-  if(mode === 'flash'){ return startFlash(); }
-  if(mode === 'wrong'){
-    const wb = getWrong(); const keys = Object.keys(wb);
-    if(keys.length === 0){ toast('错题本还是空的，先去练几组吧～'); return; }
-    const picked = shuffle(keys).slice(0, Math.min(10, keys.length));
-    picked.forEach(k => session.push(makeQuestion(pick(['meaning','word','spell']), BANK.find(w=>w.word===k))));
-  } else if(mode === 'smart'){
-    const modes = ['meaning','word','spell'];
-    for(let i=0;i<10;i++) session.push(makeQuestion(pick(modes)));
-  } else {
-    for(let i=0;i<10;i++) session.push(makeQuestion(mode));
-  }
-  qIdx = 0; correctCount = 0; wrongThisRound = [];
-  show('quiz');
-  renderQuestion();
-}
-function renderQuestion(){
-  const q = session[qIdx];
-  $('qIdx').textContent = (qIdx+1) + '/' + session.length;
-  $('qBar').style.width = (qIdx/session.length*100) + '%';
-  $('qMode').textContent = ({meaning:'词义选择',word:'单词选择',spell:'拼写练习',smart:'智能组卷'})[currentMode] || '练习';
-  const p = $('qPrompt'), o = $('qOpts'), sp = $('qSpell'), ex = $('qExplain');
-  ex.classList.add('hidden'); ex.innerHTML=''; o.innerHTML=''; sp.classList.add('hidden'); sp.value='';
-  $('qNext').disabled = true;
-  if(q.kind === 'spell'){
-    p.innerHTML = '<div class="zh">'+q.target.meaning+'</div><div class="ph">'+q.target.phonetic+'</div>';
-    sp.classList.remove('hidden'); sp.focus();
-    sp.onkeydown = e=>{ if(e.key==='Enter') submitSpell(); };
-  } else {
-    if(q.mode === 'meaning'){
-      p.innerHTML = '<div>'+q.target.word+'</div><div class="ph">'+q.target.phonetic+'</div>';
-    } else {
-      p.innerHTML = '<div class="zh">'+q.target.meaning+'</div>';
-    }
-    q.options.forEach((opt,i)=>{
-      const d = document.createElement('div');
-      d.className='opt'; d.textContent=opt; d.onclick=()=>chooseMC(i);
-      o.appendChild(d);
-    });
-  }
-}
-function chooseMC(i){
-  const q = session[qIdx];
-  const opts = document.querySelectorAll('#qOpts .opt');
-  const isRight = (i === q.answer);
-  opts.forEach((el,idx)=>{
-    el.onclick=null;
-    if(idx === q.answer) el.classList.add('correct');
-    else if(idx === i) el.classList.add('wrong');
-    else el.classList.add('dim');
-  });
-  afterAnswer(isRight, q.target.meaning, q.target.word, q.target.phonetic);
-}
-function submitSpell(){
-  const q = session[qIdx];
-  const val = $('qSpell').value.trim().toLowerCase();
-  const isRight = (val === q.target.word.toLowerCase());
-  const sp = $('qSpell');
-  sp.disabled = true;
-  if(isRight) sp.style.borderColor='var(--ok)'; else sp.style.borderColor='var(--warn)';
-  afterAnswer(isRight, q.target.meaning, q.target.word, q.target.phonetic);
-}
-function afterAnswer(isRight, meaning, word, phonetic){
-  if(isRight) correctCount++;
-  else {
-    const wb = getWrong();
-    wb[word] = {word, phonetic, meaning, wrong: (wb[word]?wb[word].wrong+1:1)};
-    setWrong(wb);
-    wrongThisRound.push(word);
-  }
-  const ex = $('qExplain');
-  ex.classList.remove('hidden');
-  ex.innerHTML = '<div class="w">'+word+'</div><div class="ph">'+phonetic+'</div><div>'+meaning+'</div>';
-  $('qNext').disabled = false;
-  refreshStats();
-}
-function nextQuestion(){
-  if(qIdx < session.length-1){ qIdx++; renderQuestion(); }
-  else finishQuiz();
-}
-function finishQuiz(){
-  const total = session.length;
-  const pct = Math.round(correctCount/total*100);
-  // 历史最佳
-  const best = getBest();
-  const key = currentMode;
-  if(!(key in best) || pct > best[key]) best[key] = pct;
-  localStorage.setItem(LS_B, JSON.stringify(best));
-  // 已练计数
-  localStorage.setItem(LS_D, String(getDone()+total));
-  $('rScore').textContent = correctCount + '/' + total;
-  $('rSub').textContent = '正确率 ' + pct + '%';
-  const prev = best[key];
-  $('rBest').textContent = (pct >= prev ? '🎉 新纪录！' : '本次最佳保持：'+prev+'%') + ' 模式：' + ({meaning:'词义选择',word:'单词选择',spell:'拼写练习',smart:'智能组卷'})[currentMode];
-  show('result');
-  refreshStats();
-}
-function retry(){ startMode(currentMode); }
-
-/* ===== 错题本 ===== */
-function showWrong(){
-  const wb = getWrong(); const keys = Object.keys(wb);
-  const list = $('wbList'); list.innerHTML='';
-  if(keys.length === 0){ list.innerHTML='<p class="center">还没有错题，去练一组吧 💪</p>'; }
-  else {
-    keys.sort().forEach(k=>{
-      const w = wb[k];
-      const d = document.createElement('div'); d.className='wb-item';
-      d.innerHTML = '<div class="w">'+w.word+'</div><div class="ph">'+w.phonetic+' · '+w.pos+'</div><div class="m">'+w.meaning+'</div>';
-      list.appendChild(d);
-    });
-  }
-  show('wrongbook');
-}
-function clearWrong(){
-  if(!confirm('确定清空错题本？此操作不可恢复。')) return;
-  localStorage.removeItem(LS_W); refreshStats(); showWrong(); toast('已清空');
-}
-
-/* ===== 卡片学习 ===== */
-let flashList = [], fIdx = 0, flipped = false;
-function startFlash(){
-  flashList = shuffle(BANK); fIdx = 0; flipped=false;
-  $('fIdx').textContent = '1/'+flashList.length;
-  $('fBar').style.width = '0%';
-  renderFlash(); show('flash');
-}
-function renderFlash(){
-  const w = flashList[fIdx];
-  $('fWord').textContent = w.word;
-  $('fPh').textContent = w.phonetic;
-  $('fPos').textContent = w.pos;
-  if(flipped){ $('fMean').classList.remove('hidden'); $('fMean').textContent = w.meaning; $('fHint').textContent='点击返回正面'; }
-  else { $('fMean').classList.add('hidden'); $('fHint').textContent='点击卡片看释义'; }
-  $('fIdx').textContent = (fIdx+1)+'/'+flashList.length;
-  $('fBar').style.width = (fIdx/(flashList.length-1)*100)+'%';
-}
-function flip(){ flipped=!flipped; renderFlash(); }
-function flashNav(d){ fIdx = (fIdx+d+flashList.length)%flashList.length; flipped=false; renderFlash(); }
-
-/* ===== 导航 ===== */
-function show(name){
-  ['home','quiz','result','wrongbook','flash'].forEach(n=>$(n).classList.toggle('hidden', n!==name));
-}
-function goHome(){ show('home'); refreshStats(); }
-
-/* ===== toast ===== */
-let toastTimer;
-function toast(msg){
-  const t=$('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
-}
-
-/* ===== 初始化 ===== */
-if(typeof document !== 'undefined' && document.addEventListener){
-  document.addEventListener('DOMContentLoaded', refreshStats);
-}
-</script>
+<!-- 数据文件 -->
+<script src="js/data/vocab-a.js"></script>
+<script src="js/data/vocab-f.js"></script>
+<script src="js/data/vocab-k.js"></script>
+<script src="js/data/vocab-p.js"></script>
+<script src="js/data/vocab-u.js"></script>
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/srs.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
