@@ -45,6 +45,123 @@ function isValidSyncCode(code) {
   return /^[A-Z2-9]{6}$/.test(code);
 }
 
+// 同步恢复页面 HTML（内联，不走CDN缓存）
+const SYNC_PAGE_HTML = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>恢复学习数据</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:#f0f2f5; color:#333; display:flex; justify-content:center; align-items:center; min-height:100vh; padding:20px; }
+.card { background:#fff; border-radius:16px; padding:32px 24px; max-width:380px; width:100%; box-shadow:0 4px 24px rgba(0,0,0,0.08); text-align:center; }
+.icon { font-size:48px; margin-bottom:12px; }
+h1 { font-size:20px; margin-bottom:6px; }
+.desc { font-size:14px; color:#888; margin-bottom:24px; line-height:1.5; }
+input { width:100%; padding:14px; font-size:20px; text-align:center; letter-spacing:4px; border:2px solid #e0e0e0; border-radius:10px; text-transform:uppercase; margin-bottom:16px; }
+input:focus { outline:none; border-color:#4f6df5; }
+button { width:100%; padding:14px; font-size:16px; border:none; border-radius:10px; cursor:pointer; font-weight:600; transition:all .2s; }
+.btn-primary { background:#4f6df5; color:#fff; }
+.btn-primary:hover { background:#3d5de0; }
+.btn-primary:disabled { background:#ccc; cursor:not-allowed; }
+.result { margin-top:16px; padding:14px; border-radius:8px; font-size:14px; display:none; }
+.result.success { background:#e8f5e9; color:#2e7d32; display:block; }
+.result.error { background:#fbe9e7; color:#c62828; display:block; }
+.result.loading { background:#e3f2fd; color:#1565c0; display:block; }
+.stats { margin-top:12px; font-size:13px; color:#666; }
+.stats div { margin:4px 0; }
+.link { margin-top:20px; font-size:13px; }
+.link a { color:#4f6df5; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="card">
+<div class="icon">☁️</div>
+<h1>恢复学习数据</h1>
+<p class="desc">输入6位同步码，从云端恢复你的学习进度</p>
+<input type="text" id="code" placeholder="同步码" maxlength="6" autocomplete="off" />
+<button class="btn-primary" id="btn" onclick="doRestore()">恢复数据</button>
+<div class="result" id="result"></div>
+<div class="stats" id="stats" style="display:none"></div>
+<div class="link"><a href="https://goodniuniu.github.io/gaokao-english-vocab/">→ 前往单词练习</a></div>
+</div>
+<script>
+var API_BASE = '';
+function showResult(msg, type) {
+  var el = document.getElementById('result');
+  el.textContent = msg;
+  el.className = 'result ' + type;
+}
+async function doRestore() {
+  var code = document.getElementById('code').value.trim().toUpperCase();
+  if (!code || code.length !== 6) { showResult('请输入6位同步码', 'error'); return; }
+  var btn = document.getElementById('btn');
+  btn.disabled = true;
+  btn.textContent = '恢复中...';
+  showResult('正在从云端拉取数据...', 'loading');
+  try {
+    var resp = await fetch('/api/data/' + code, { method: 'GET' });
+    var text = await resp.text();
+    var data;
+    try { data = JSON.parse(text); } catch(e) {
+      throw new Error('服务器返回异常，请稍后重试');
+    }
+    if (!resp.ok || data.ok === false) {
+      throw new Error(data.error || '恢复失败 (HTTP ' + resp.status + ')');
+    }
+    showResult('数据拉取成功！正在写入本地...', 'loading');
+
+    // 写入 localStorage（跟主应用相同的 key 格式）
+    var PREFIX = 'gev_';
+    var uid = 'u_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
+    // 创建用户
+    var users = JSON.parse(localStorage.getItem(PREFIX + 'users') || '{}');
+    users[uid] = { id: uid, name: data.name, createdAt: Date.now() };
+    localStorage.setItem(PREFIX + 'users', JSON.stringify(users));
+    localStorage.setItem(PREFIX + 'current_user', uid);
+
+    // 写入学习数据
+    var d = data.data || {};
+    localStorage.setItem(PREFIX + uid + '_srs', JSON.stringify(d.srs || {}));
+    localStorage.setItem(PREFIX + uid + '_wrong', JSON.stringify(d.wrong || {}));
+    localStorage.setItem(PREFIX + uid + '_best', JSON.stringify(d.best || {}));
+    localStorage.setItem(PREFIX + uid + '_done', String(d.done || 0));
+    localStorage.setItem(PREFIX + uid + '_custom', JSON.stringify(d.custom || []));
+    localStorage.setItem(PREFIX + uid + '_daily', JSON.stringify(d.daily || {date:'',count:0,goal:20}));
+
+    // 保存同步码
+    localStorage.setItem(PREFIX + 'sync_code', code);
+    localStorage.setItem(PREFIX + 'sync_name', data.name);
+
+    // 显示统计
+    var stats = document.getElementById('stats');
+    stats.innerHTML = '<div>用户: <b>' + data.name + '</b></div>'
+      + '<div>SRS 记录: <b>' + Object.keys(d.srs||{}).length + '</b> 个单词</div>'
+      + '<div>已练习: <b>' + (d.done||0) + '</b> 题</div>'
+      + '<div>今日进度: <b>' + (d.daily ? d.daily.count : 0) + '/' + (d.daily ? d.daily.goal : 20) + '</b></div>';
+    stats.style.display = 'block';
+
+    showResult('恢复成功！点击下方链接开始学习', 'success');
+    btn.textContent = '前往单词练习';
+    btn.disabled = false;
+    btn.onclick = function() { window.location.href = 'https://goodniuniu.github.io/gaokao-english-vocab/'; };
+  } catch(e) {
+    console.error('恢复失败:', e);
+    showResult(e.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '恢复数据';
+  }
+}
+document.getElementById('code').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doRestore();
+});
+document.getElementById('code').focus();
+</script>
+</body>
+</html>`;
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -59,6 +176,18 @@ export default {
     // 健康检查
     if (path === '/' || path === '/api/health') {
       return json({ ok: true, service: 'gaokao-english-vocab-sync', time: Date.now() });
+    }
+
+    // ---- 同步恢复页面（不走CDN缓存，确保最新） ----
+    if (path === '/sync') {
+      var html = SYNC_PAGE_HTML;
+      return new Response(html, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          ...CORS_HEADERS,
+        },
+      });
     }
 
     // ---- 注册新用户 ----
