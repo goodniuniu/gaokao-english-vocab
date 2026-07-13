@@ -493,7 +493,42 @@ function speakWord(word) { speak(word); }
 // 卡片学习
 // ============================================
 function startFlash() {
-  flashList = shuffle(getFullBank());
+  var bank = getFullBank();
+  var srsData = Storage.getSRSData();
+
+  // 优先展示：到期复习词 + 新词，然后才是已学过的词
+  var dueWords = SRS.getDueWords(srsData);
+  var newWords = SRS.getNewWords(srsData, bank, 999);
+  var learnedKeys = Object.keys(srsData).filter(function(k) {
+    return dueWords.indexOf(k) === -1;
+  });
+
+  // 按优先级排序：复习词 → 新词 → 已学词
+  flashList = [];
+  var seen = {};
+
+  dueWords.forEach(function(k) {
+    var w = findWord(k);
+    if (w && !seen[k]) { flashList.push(w); seen[k] = true; }
+  });
+  newWords.forEach(function(k) {
+    var w = findWord(k);
+    if (w && !seen[k.toLowerCase()]) { flashList.push(w); seen[k.toLowerCase()] = true; }
+  });
+  // 补充剩余已学词（随机）
+  shuffle(learnedKeys).forEach(function(k) {
+    var w = findWord(k);
+    if (w && !seen[k]) { flashList.push(w); seen[k] = true; }
+  });
+
+  // 如果词太少（比如全库已学完），补充全部
+  if (flashList.length < 20) {
+    bank.forEach(function(w) {
+      var k = w.word.toLowerCase();
+      if (!seen[k]) { flashList.push(w); seen[k] = true; }
+    });
+  }
+
   fIdx = 0;
   flipped = false;
   $('fIdx').textContent = '1/' + flashList.length;
@@ -508,24 +543,49 @@ function renderFlash() {
   $('fPh').textContent = w.phonetic;
   $('fPos').textContent = w.pos;
 
+  // SRS 状态徽章
+  var srsData = Storage.getSRSData();
+  var rec = srsData[w.word.toLowerCase()];
+  var badge = $('fSrsBadge');
+  if (rec && rec.total > 0) {
+    var levelNames = {
+      0: { text: '新词', cls: 'new' },
+      1: { text: '学习中', cls: 'learning' },
+      2: { text: '熟悉中', cls: 'familiar' },
+      3: { text: '已掌握', cls: 'mastered' }
+    };
+    var info = levelNames[rec.level] || levelNames[0];
+    badge.className = 'srs-badge ' + info.cls;
+    badge.textContent = info.text + ' · 答对' + rec.correct + '/' + rec.total;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+
   if (flipped) {
     $('fMean').classList.remove('hidden');
     $('fMean').textContent = w.meaning;
-    $('fHint').textContent = '点击返回正面';
+    $('fHint').textContent = '给自己打个分吧 👇';
     if (w.exampleEn) {
       $('fExample').classList.remove('hidden');
       $('fExample').innerHTML = '<b>' + escapeHtml(w.exampleEn) + '</b><br>' + escapeHtml(w.exampleZh || '');
     } else {
       $('fExample').classList.add('hidden');
     }
+    // 翻面后显示评级按钮
+    $('fRateBtns').classList.remove('hidden');
+    $('fStatus').textContent = '翻面 · 评级';
   } else {
     $('fMean').classList.add('hidden');
     $('fExample').classList.add('hidden');
     $('fHint').textContent = '点击卡片看释义';
+    $('fRateBtns').classList.add('hidden');
+    var dueCount = SRS.getDueWords(srsData).length;
+    $('fStatus').textContent = dueCount > 0 ? '卡片学习 · ' + dueCount + '词待复习' : '卡片学习';
   }
 
   $('fIdx').textContent = (fIdx + 1) + '/' + flashList.length;
-  $('fBar').style.width = (fIdx / (flashList.length - 1) * 100) + '%';
+  $('fBar').style.width = (fIdx / Math.max(flashList.length - 1, 1) * 100) + '%';
 }
 
 function flip() {
@@ -537,6 +597,52 @@ function flashNav(d) {
   fIdx = (fIdx + d + flashList.length) % flashList.length;
   flipped = false;
   renderFlash();
+}
+
+// 卡片评级：认识/不认识 → 更新 SRS → 自动翻到下一个
+function flashRate(known) {
+  var w = flashList[fIdx];
+
+  // 更新 SRS 记录
+  var srsData = Storage.getSRSData();
+  SRS.updateRecord(srsData, w.word, known);
+  Storage.setSRSData(srsData);
+
+  // 不认识的词加入错题本
+  if (!known) {
+    var wb = Storage.getWrongBook();
+    var key = w.word.toLowerCase();
+    if (wb[key]) {
+      wb[key].wrong = (wb[key].wrong || 0) + 1;
+    } else {
+      wb[key] = {
+        word: w.word,
+        phonetic: w.phonetic,
+        pos: w.pos,
+        meaning: w.meaning,
+        exampleEn: w.exampleEn || '',
+        exampleZh: w.exampleZh || '',
+        wrong: 1
+      };
+    }
+    Storage.setWrongBook(wb);
+  }
+
+  // 更新每日进度
+  var daily = Storage.getDailyProgress();
+  var today = new Date().toDateString();
+  if (daily.date !== today) { daily = { date: today, count: 0, goal: daily.goal }; }
+  daily.count++;
+  Storage.setDailyProgress(daily);
+
+  // 标记云同步
+  if (typeof Sync !== 'undefined') Sync.markPending();
+
+  // 短暂反馈后自动翻到下一个
+  toast(known ? '✅ 认识' : '❌ 不认识，已加入复习');
+  setTimeout(function() {
+    flashNav(1);
+  }, 400);
 }
 
 // ============================================
@@ -1011,9 +1117,11 @@ document.addEventListener('keydown', function(e) {
     }
   }
 
-  // 卡片中：空格翻面，左右箭头切换
+  // 卡片中：空格翻面，1=不认识 2=认识，左右箭头切换
   if (!$('flash').classList.contains('hidden')) {
     if (e.key === ' ') { e.preventDefault(); flip(); }
+    else if (e.key === '1' && flipped) { e.preventDefault(); flashRate(false); }
+    else if (e.key === '2' && flipped) { e.preventDefault(); flashRate(true); }
     else if (e.key === 'ArrowLeft') flashNav(-1);
     else if (e.key === 'ArrowRight') flashNav(1);
   }

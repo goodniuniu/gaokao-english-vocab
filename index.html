@@ -136,8 +136,13 @@
   <!-- 卡片 -->
   <div id="flash" class="hidden">
     <div class="card">
-      <div class="qhead"><span id="fIdx">1/0</span><span class="bar"><i id="fBar"></i></span><span>卡片学习</span></div>
+      <div class="qhead">
+        <span id="fIdx">1/0</span>
+        <span class="bar"><i id="fBar"></i></span>
+        <span id="fStatus">卡片学习</span>
+      </div>
       <div class="flash" id="flashCard" onclick="flip()">
+        <div class="srs-badge hidden" id="fSrsBadge"></div>
         <div class="word" id="fWord"></div>
         <div class="ph" id="fPh"></div>
         <div class="pos" id="fPos"></div>
@@ -148,11 +153,16 @@
       <div class="speak-row">
         <button class="speak-btn" id="fSpeakBtn" onclick="event.stopPropagation(); speak($('fWord').textContent)">🔊</button>
       </div>
+      <div class="rate-btns hidden" id="fRateBtns">
+        <button class="btn rate-unknown" onclick="flashRate(false)">❌ 不认识</button>
+        <button class="btn rate-known" onclick="flashRate(true)">✅ 认识</button>
+      </div>
       <div class="flipbtns">
         <button class="btn ghost" onclick="flashNav(-1)">上一个</button>
+        <button class="btn ghost" onclick="goHome()">返回</button>
         <button class="btn" onclick="flashNav(1)">下一个</button>
       </div>
-      <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:8px">空格翻面 · 左右切换</p>
+      <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:8px">空格翻面 · 1=不认识 2=认识 · 左右切换</p>
     </div>
   </div>
 

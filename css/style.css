@@ -757,8 +757,48 @@ input.spell:focus {
 
 .flipbtns {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-top: 8px;
+}
+
+/* SRS 状态徽章 */
+.srs-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.srs-badge.new { background: var(--bg-secondary); color: var(--sub); }
+.srs-badge.learning { background: #fff3e0; color: #f57c00; }
+.srs-badge.familiar { background: #e3f2fd; color: #1976d2; }
+.srs-badge.mastered { background: var(--ok-light); color: var(--ok); }
+
+[data-theme="dark"] .srs-badge.learning { background: #3d2f0a; }
+[data-theme="dark"] .srs-badge.familiar { background: #1a2942; }
+
+/* 评级按钮 */
+.rate-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.rate-known {
+  background: var(--ok);
+  color: #fff;
+}
+
+.rate-unknown {
+  background: var(--warn);
+  color: #fff;
+}
+
+.rate-btns .btn {
+  font-size: 14px;
+  padding: 12px;
 }
 
 /* ===== Footer ===== */
