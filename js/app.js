@@ -992,22 +992,35 @@ async function doLogin() {
   var code = $('syncLoginCode').value.trim().toUpperCase();
   if (!code || code.length !== 6) { toast('请输入6位同步码'); return; }
 
-  var btn = $('syncLoginCode');
-  if (btn) btn.disabled = true;
+  // 检查 Sync 模块是否可用
+  if (typeof Sync === 'undefined') {
+    toast('同步模块未加载，请清除浏览器缓存后重试');
+    return;
+  }
+
+  // 禁用按钮防止重复点击
+  var btns = document.querySelectorAll('#syncTabLogin button');
+  btns.forEach(function(b) { b.disabled = true; });
+
   toast('正在恢复数据...');
 
   try {
     var data = await Sync.pull(code);
-    toast('数据恢复成功！');
+    toast('数据恢复成功！欢迎回来，' + (Sync.getSyncName() || ''));
     refreshSyncPanel();
     refreshUserBadge();
     refreshStats();
     Sync.startAutoSync();
   } catch(e) {
     console.error('恢复失败:', e);
-    toast('恢复失败: ' + e.message);
+    // 错误提示保留更久
+    var t = $('toast');
+    t.textContent = '恢复失败: ' + e.message;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { t.classList.remove('show'); }, 5000);
   } finally {
-    if (btn) btn.disabled = false;
+    btns.forEach(function(b) { b.disabled = false; });
   }
 }
 
