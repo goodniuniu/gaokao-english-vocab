@@ -369,6 +369,9 @@ function afterAnswer(isRight, target) {
   $('qNext').disabled = false;
   $('qNext').focus();
   refreshStats();
+
+  // 标记需要云同步
+  if (typeof Sync !== 'undefined') Sync.markPending();
 }
 
 function nextQuestion() {
@@ -473,6 +476,7 @@ function removeWrong(key) {
   showWrong();
   refreshStats();
   toast('已从错题本移除');
+  if (typeof Sync !== 'undefined') Sync.markPending();
 }
 
 function clearWrong() {
@@ -601,6 +605,7 @@ function saveCustomWord(oldWord) {
   toast(oldWord ? '已更新' : '已添加');
   renderCustomWords();
   refreshStats();
+  if (typeof Sync !== 'undefined') Sync.markPending();
 }
 
 function renderCustomWords() {
@@ -655,6 +660,7 @@ function deleteCustomWord(word) {
   renderCustomWords();
   refreshStats();
   toast('已删除');
+  if (typeof Sync !== 'undefined') Sync.markPending();
 }
 
 // ============================================
@@ -776,7 +782,140 @@ function openSettings() {
     }
   };
 
+  // 云同步状态
+  refreshSyncPanel();
+
   showModal('settingsModal');
+}
+
+// ============================================
+// 云同步功能
+// ============================================
+function refreshSyncPanel() {
+  var configured = Sync.isConfigured();
+  var hasCode = !!Sync.getSyncCode();
+  var panel = $('syncPanel');
+
+  if (!panel) return;
+
+  if (!configured) {
+    // 未配置服务器
+    panel.innerHTML = '<div style="padding:12px 0"><div style="font-size:13px;color:var(--sub);margin-bottom:8px">需要先填写 Worker 地址才能启用云同步</div>'
+      + '<label>Worker API 地址</label>'
+      + '<input type="text" id="syncApiBase" placeholder="https://xxx.your-subdomain.workers.dev" style="margin-top:4px" />'
+      + '<button class="btn" style="margin-top:10px" onclick="saveApiBase()">保存地址</button></div>';
+  } else if (!hasCode) {
+    // 已配置但未注册
+    panel.innerHTML = '<div style="padding:12px 0"><div style="font-size:13px;color:var(--sub);margin-bottom:8px">服务器已连接: ' + escapeHtml(Sync.getApiBase()) + '</div>'
+      + '<div class="sync-tabs" style="display:flex;gap:8px;margin-bottom:12px">'
+      + '<button class="btn ghost" style="flex:1;padding:10px;font-size:13px" id="tabRegister" onclick="showSyncTab(\'register\')">注册新账号</button>'
+      + '<button class="btn ghost" style="flex:1;padding:10px;font-size:13px" id="tabLogin" onclick="showSyncTab(\'login\')">用同步码登录</button>'
+      + '</div>'
+      + '<div id="syncTabRegister">'
+      + '<label>创建名字</label>'
+      + '<input type="text" id="syncRegName" placeholder="输入名字" maxlength="12" />'
+      + '<button class="btn" style="margin-top:10px" onclick="doRegister()">注册并获取同步码</button>'
+      + '</div>'
+      + '<div id="syncTabLogin" class="hidden">'
+      + '<label>同步码（6位）</label>'
+      + '<input type="text" id="syncLoginCode" placeholder="如：AB3XK9" maxlength="6" style="text-transform:uppercase" />'
+      + '<button class="btn" style="margin-top:10px" onclick="doLogin()">恢复数据</button>'
+      + '</div></div>';
+    showSyncTab('register');
+  } else {
+    // 已同步
+    var name = Sync.getSyncName() || '已同步';
+    panel.innerHTML = '<div style="padding:12px 0">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'
+      + '<span style="font-size:20px">☁️</span>'
+      + '<div><div style="font-weight:700;font-size:14px">' + escapeHtml(name) + '</div>'
+      + '<div style="font-size:12px;color:var(--sub)">同步码: <b style="color:var(--brand);letter-spacing:1px">' + Sync.getSyncCode() + '</b></div></div>'
+      + '</div>'
+      + '<div style="display:flex;gap:8px">'
+      + '<button class="btn ghost" style="flex:1;padding:10px;font-size:13px" onclick="doManualSync()">立即同步</button>'
+      + '<button class="btn ghost" style="flex:1;padding:10px;font-size:13px;color:var(--warn)" onclick="doDisconnect()">断开同步</button>'
+      + '</div>'
+      + '<div style="font-size:11px;color:var(--sub);margin-top:8px">同步码是跨设备恢复数据的钥匙，请记好</div>'
+      + '</div>';
+  }
+}
+
+function showSyncTab(tab) {
+  var reg = $('syncTabRegister');
+  var login = $('syncTabLogin');
+  if (!reg || !login) return;
+
+  reg.classList.toggle('hidden', tab !== 'register');
+  login.classList.toggle('hidden', tab !== 'login');
+
+  $('tabRegister').style.background = tab === 'register' ? 'var(--brand)' : '';
+  $('tabRegister').style.color = tab === 'register' ? '#fff' : '';
+  $('tabLogin').style.background = tab === 'login' ? 'var(--brand)' : '';
+  $('tabLogin').style.color = tab === 'login' ? '#fff' : '';
+}
+
+function saveApiBase() {
+  var url = $('syncApiBase').value.trim();
+  if (!url) { toast('请输入地址'); return; }
+  if (!url.startsWith('http')) { toast('地址需以 http 开头'); return; }
+  Sync.setApiBase(url);
+  toast('地址已保存');
+  refreshSyncPanel();
+}
+
+async function doRegister() {
+  var name = $('syncRegName').value.trim();
+  if (!name) { toast('请输入名字'); return; }
+
+  try {
+    toast('注册中...');
+    var data = await Sync.register(name);
+    if (data.ok) {
+      toast('注册成功！同步码: ' + data.syncCode);
+      Sync.startAutoSync();
+      refreshSyncPanel();
+    } else {
+      toast(data.error || '注册失败');
+    }
+  } catch(e) {
+    toast('注册失败: ' + e.message);
+  }
+}
+
+async function doLogin() {
+  var code = $('syncLoginCode').value.trim().toUpperCase();
+  if (!code || code.length !== 6) { toast('请输入6位同步码'); return; }
+
+  try {
+    toast('正在恢复数据...');
+    var data = await Sync.pull(code);
+    if (data.ok) {
+      toast('数据恢复成功！');
+      refreshSyncPanel();
+      refreshUserBadge();
+      refreshStats();
+      Sync.startAutoSync();
+    }
+  } catch(e) {
+    toast('恢复失败: ' + e.message);
+  }
+}
+
+async function doManualSync() {
+  try {
+    toast('同步中...');
+    await Sync.uploadAll();
+    toast('同步完成');
+  } catch(e) {
+    toast('同步失败: ' + e.message);
+  }
+}
+
+function doDisconnect() {
+  if (!confirm('断开同步后，本设备数据仍保留，但不再自动同步。确定？')) return;
+  Sync.disconnect();
+  toast('已断开同步');
+  refreshSyncPanel();
 }
 
 // ============================================
@@ -897,7 +1036,6 @@ function init() {
   var uid = Storage.getCurrentUser();
   var users = Storage.getUsers();
   if (!uid || !users[uid]) {
-    // 创建默认用户
     if (Object.keys(users).length === 0) {
       setTimeout(function() { openUserModal(); }, 500);
     }
@@ -905,6 +1043,11 @@ function init() {
 
   refreshUserBadge();
   refreshStats();
+
+  // 如果已配置云同步，启动自动同步
+  if (typeof Sync !== 'undefined' && Sync.isConfigured() && Sync.getSyncCode()) {
+    Sync.startAutoSync();
+  }
 }
 
 if (typeof document !== 'undefined') {

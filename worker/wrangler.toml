@@ -1,0 +1,11 @@
+name = "gaokao-vocab-sync"
+main = "src/index.js"
+compatibility_date = "2024-09-01"
+
+# KV Namespace 绑定
+# 部署前先运行: npx wrangler kv namespace create VOCAB_KV
+# 然后将返回的 id 填到下面
+[[kv_namespaces]]
+binding = "VOCAB_KV"
+id = "你的KV_NAMESPACE_ID"       # ← 替换为你的 KV namespace ID
+# preview_id = "预览环境ID"       # 可选：本地开发用
