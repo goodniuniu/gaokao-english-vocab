@@ -62,11 +62,24 @@ var Sync = (function() {
     opts.headers = opts.headers || {};
     opts.headers['Content-Type'] = 'application/json';
 
-    var resp = await fetch(url, opts);
-    var data = await resp.json();
+    var resp;
+    try {
+      resp = await fetch(url, opts);
+    } catch(netErr) {
+      throw new Error('网络连接失败，请检查网络后重试 (' + netErr.message + ')');
+    }
 
-    if (!resp.ok && !data.ok) {
-      throw new Error(data.error || ('HTTP ' + resp.status));
+    // 先拿文本，避免非 JSON 响应导致 json() 抛异常
+    var text = await resp.text();
+    var data;
+    try {
+      data = JSON.parse(text);
+    } catch(e) {
+      throw new Error('服务器返回异常 (HTTP ' + resp.status + ')，请稍后重试');
+    }
+
+    if (!resp.ok || data.ok === false) {
+      throw new Error(data.error || ('请求失败 (HTTP ' + resp.status + ')'));
     }
     return data;
   }
@@ -95,21 +108,26 @@ var Sync = (function() {
   // ===== 从云端拉取数据并合并到本地 =====
   async function pull(code) {
     var data = await apiCall('/api/data/' + code, { method: 'GET' });
-    if (!data.ok) throw new Error(data.error || '拉取失败');
 
     setSyncCode(code);
     setSyncName(data.name);
 
+    // 确保 localStorage 可用且有当前用户
+    var uid = Storage.getCurrentUser();
+    var users = Storage.getUsers();
+
+    // 如果当前没有用户，或当前用户名跟云端不匹配，创建一个新用户
+    if (!uid || !users[uid]) {
+      uid = Storage.createUser(data.name || '同步用户');
+      Storage.setCurrentUser(uid);
+    } else {
+      // 更新当前用户名为云端用户名
+      Storage.renameUser(uid, data.name || users[uid].name);
+    }
+
     // 将云端数据写入本地
     if (data.data) {
       var d = data.data;
-      // 需要为这个用户创建本地存储
-      var uid = Storage.getCurrentUser();
-      if (!uid) {
-        uid = Storage.createUser(data.name);
-        Storage.setCurrentUser(uid);
-      }
-
       Storage.setSRSData(d.srs || {});
       Storage.setWrongBook(d.wrong || {});
       Storage.setBestScores(d.best || {});
@@ -122,6 +140,14 @@ var Sync = (function() {
         Object.assign(settings, d.settings);
         Storage.setSettings(settings);
       }
+    } else {
+      // 云端没有数据，初始化空数据
+      Storage.setSRSData({});
+      Storage.setWrongBook({});
+      Storage.setBestScores({});
+      Storage.setDoneCount(0);
+      Storage.setCustomWords([]);
+      Storage.setDailyProgress({ date: '', count: 0, goal: 20 });
     }
 
     return data;

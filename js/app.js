@@ -992,18 +992,22 @@ async function doLogin() {
   var code = $('syncLoginCode').value.trim().toUpperCase();
   if (!code || code.length !== 6) { toast('请输入6位同步码'); return; }
 
+  var btn = $('syncLoginCode');
+  if (btn) btn.disabled = true;
+  toast('正在恢复数据...');
+
   try {
-    toast('正在恢复数据...');
     var data = await Sync.pull(code);
-    if (data.ok) {
-      toast('数据恢复成功！');
-      refreshSyncPanel();
-      refreshUserBadge();
-      refreshStats();
-      Sync.startAutoSync();
-    }
+    toast('数据恢复成功！');
+    refreshSyncPanel();
+    refreshUserBadge();
+    refreshStats();
+    Sync.startAutoSync();
   } catch(e) {
+    console.error('恢复失败:', e);
     toast('恢复失败: ' + e.message);
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
