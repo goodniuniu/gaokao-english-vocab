@@ -104,6 +104,7 @@ function refreshStats() {
   var srsStats = SRS.getStats(Storage.getSRSData());
 
   $('sTotal').textContent = bank.length;
+  $('tagTotal').textContent = bank.length;
   $('sWrong').textContent = wc;
   $('sDone').textContent = Storage.getDoneCount();
   $('sBest').textContent = bestPct == null ? '—' : bestPct + '%';
@@ -126,6 +127,7 @@ function refreshStats() {
   }
 
   refreshDailyGoal();
+  refreshStreak();
 }
 
 function refreshDailyGoal() {
@@ -138,6 +140,48 @@ function refreshDailyGoal() {
   $('dgCount').textContent = daily.count;
   $('dgGoal').textContent = daily.goal;
   $('dgLabel').textContent = daily.count >= daily.goal ? '已达标 🎉' : '还差 ' + (daily.goal - daily.count) + ' 题';
+}
+
+// 更新连续学习天数（每次答题后调用）
+// 设计：只要今天答题了就算"打卡"，连续天数 = 从昨天往前连续打卡的天数 + 今天
+function updateStreak() {
+  var today = new Date().toDateString();
+  var yesterday = new Date(Date.now() - 86400000).toDateString();
+  var streak = Storage.getStreak();
+
+  // 今天已经打卡过，无需再更新
+  if (streak.lastDate === today) return;
+
+  // 今天第一次答题
+  if (streak.lastDate === yesterday) {
+    // 昨天打过卡，连续天数 +1
+    streak.current = streak.current + 1;
+  } else {
+    // 断了（或第一次），从 1 开始
+    streak.current = 1;
+  }
+
+  streak.lastDate = today;
+  if (streak.current > streak.best) streak.best = streak.current;
+  Storage.setStreak(streak);
+
+  // 标记云同步
+  if (typeof Sync !== 'undefined') Sync.markPending();
+}
+
+function refreshStreak() {
+  var streak = Storage.getStreak();
+  var today = new Date().toDateString();
+  var yesterday = new Date(Date.now() - 86400000).toDateString();
+  // 如果上次打卡既不是今天也不是昨天，说明断了
+  if (streak.lastDate !== today && streak.lastDate !== yesterday) {
+    if (streak.current !== 0) {
+      streak.current = 0;
+      Storage.setStreak(streak);
+    }
+  }
+  $('streakCurrent').textContent = streak.current;
+  $('streakBest').textContent = streak.best;
 }
 
 // ============================================
@@ -312,8 +356,13 @@ function submitSpell() {
   var isRight = (val === q.target.word.toLowerCase());
   var sp = $('qSpell');
   sp.disabled = true;
-  if (isRight) sp.style.borderColor = 'var(--ok)';
-  else sp.style.borderColor = 'var(--warn)';
+  if (isRight) {
+    sp.style.borderColor = 'var(--ok)';
+  } else {
+    sp.style.borderColor = 'var(--warn)';
+    // 在输入框下方显示正确答案
+    sp.value = sp.value + '  → 正确: ' + q.target.word;
+  }
   afterAnswer(isRight, q.target);
 }
 
@@ -352,6 +401,9 @@ function afterAnswer(isRight, target) {
   if (daily.date !== today) { daily = { date: today, count: 0, goal: daily.goal }; }
   daily.count++;
   Storage.setDailyProgress(daily);
+
+  // 更新连续学习天数
+  updateStreak();
 
   // 显示解析
   var ex = $('qExplain');
@@ -594,7 +646,15 @@ function flip() {
 }
 
 function flashNav(d) {
-  fIdx = (fIdx + d + flashList.length) % flashList.length;
+  var next = fIdx + d;
+  // 到达末尾时提示完成
+  if (d > 0 && next >= flashList.length) {
+    toast('🎉 全部卡片已浏览完！');
+    return;
+  }
+  // 越界保护
+  if (next < 0) next = 0;
+  fIdx = next;
   flipped = false;
   renderFlash();
 }
@@ -634,6 +694,9 @@ function flashRate(known) {
   if (daily.date !== today) { daily = { date: today, count: 0, goal: daily.goal }; }
   daily.count++;
   Storage.setDailyProgress(daily);
+
+  // 更新连续学习天数
+  updateStreak();
 
   // 标记云同步
   if (typeof Sync !== 'undefined') Sync.markPending();
@@ -1119,9 +1182,8 @@ document.addEventListener('keydown', function(e) {
 
       if (idx >= 0) {
         var opts = document.querySelectorAll('#qOpts .opt');
-        if (opts[idx] && !opts[idx].onclick == null) {
-          opts[idx].click();
-        } else if (opts[idx]) {
+        // 只有未答过的选项（onclick 未被 null）才允许点击
+        if (opts[idx] && opts[idx].onclick) {
           opts[idx].click();
         }
       }

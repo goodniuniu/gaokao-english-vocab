@@ -1,4 +1,44 @@
-# 云同步部署指南（Cloudflare Workers + KV）
+# 部署指南
+
+## 一、前端部署（GitHub Pages 自动构建）
+
+### 工作原理
+
+代码推送到 `main` 分支后，GitHub Actions 自动执行 `build.js`，将所有 `?v=DEV` 替换为内容哈希，然后部署到 GitHub Pages。全程无需手动操作。
+
+### 首次配置（仅需一次）
+
+1. 打开仓库 **Settings → Pages**
+2. **Source** 选择 **GitHub Actions**（不是 Deploy from a branch）
+3. 保存
+
+### 日常部署流程
+
+```bash
+git add .
+git commit -m "你的改动说明"
+git push
+```
+
+推送后 1-2 分钟自动上线。可在仓库 **Actions** 标签页查看构建进度。
+
+### 自动哈希缓存方案
+
+- `index.html` 中所有静态资源引用写 `?v=DEV` 占位符
+- `build.js` 构建时根据文件内容自动生成 8 位哈希（如 `?v=acccc0af`）
+- 文件没改 → 哈希不变 → 用户命中浏览器缓存（快）
+- 文件改了 → 哈希变化 → 浏览器自动拉取新版本（新）
+
+### 本地预览构建结果
+
+```bash
+npm run build           # 构建到 dist/
+cd dist && python -m http.server 8125   # 本地预览
+```
+
+---
+
+## 二、后端部署（Cloudflare Workers + KV）
 
 本指南帮你一步步部署免费后端，实现跨设备数据同步。
 

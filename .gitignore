@@ -20,3 +20,6 @@ worker/node_modules/
 
 # Wrangler 缓存
 worker/.wrangler/
+
+# 构建输出
+dist/

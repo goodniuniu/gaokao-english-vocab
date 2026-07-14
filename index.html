@@ -8,7 +8,7 @@
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 <title>高考英语单词练习</title>
-<link rel="stylesheet" href="css/style.css?v=20260714a" />
+<link rel="stylesheet" href="css/style.css?v=DEV" />
 </head>
 <body>
 <div class="wrap">
@@ -25,18 +25,27 @@
       </div>
     </div>
   </header>
-  <p class="tag">词库 <b id="sTotal">0</b> 词 · 间隔重复记忆 · 多用户支持 · 数据本地保存</p>
+  <p class="tag">词库 <b id="tagTotal">0</b> 词 · 间隔重复记忆 · 多用户支持 · 数据本地保存</p>
 
-  <!-- 每日目标 -->
-  <div class="daily-goal">
-    <div class="icon">🎯</div>
-    <div class="text">
-      <div class="t">今日目标</div>
-      <div class="d" id="dgLabel">还未开始</div>
+  <!-- 每日目标 + 连续天数 -->
+  <div class="daily-row">
+    <div class="daily-goal">
+      <div class="icon">🎯</div>
+      <div class="text">
+        <div class="t">今日目标</div>
+        <div class="d" id="dgLabel">还未开始</div>
+      </div>
+      <div class="progress">
+        <div class="n"><span id="dgCount">0</span>/<span id="dgGoal">20</span></div>
+        <div class="l">道题</div>
+      </div>
     </div>
-    <div class="progress">
-      <div class="n"><span id="dgCount">0</span>/<span id="dgGoal">20</span></div>
-      <div class="l">道题</div>
+    <div class="streak-box">
+      <div class="icon">🔥</div>
+      <div class="text">
+        <div class="t">连续 <span id="streakCurrent">0</span> 天</div>
+        <div class="d">最高 <span id="streakBest">0</span> 天</div>
+      </div>
     </div>
   </div>
 
@@ -275,22 +284,22 @@
   </div>
 </div>
 
-<!-- 版本 v3: 所有脚本带版本号防止缓存 -->
-<script src="js/data/vocab-a.js?v=3"></script>
-<script src="js/data/vocab-f.js?v=3"></script>
-<script src="js/data/vocab-k.js?v=3"></script>
-<script src="js/data/vocab-p.js?v=3"></script>
-<script src="js/data/vocab-u.js?v=3"></script>
+<!-- DEV 版本号由 build.js 自动替换为内容哈希 -->
+<script src="js/data/vocab-a.js?v=DEV"></script>
+<script src="js/data/vocab-f.js?v=DEV"></script>
+<script src="js/data/vocab-k.js?v=DEV"></script>
+<script src="js/data/vocab-p.js?v=DEV"></script>
+<script src="js/data/vocab-u.js?v=DEV"></script>
 <!-- 补充词库 -->
-<script src="js/data/supp-ae.js?v=1"></script>
-<script src="js/data/supp-fj.js?v=1"></script>
-<script src="js/data/supp-ko.js?v=1"></script>
-<script src="js/data/supp-pt.js?v=1"></script>
-<script src="js/data/supp-uz.js?v=1"></script>
-<script src="js/data.js?v=3"></script>
-<script src="js/storage.js?v=3"></script>
-<script src="js/srs.js?v=3"></script>
-<script src="js/sync.js?v=3"></script>
-<script src="js/app.js?v=3"></script>
+<script src="js/data/supp-ae.js?v=DEV"></script>
+<script src="js/data/supp-fj.js?v=DEV"></script>
+<script src="js/data/supp-ko.js?v=DEV"></script>
+<script src="js/data/supp-pt.js?v=DEV"></script>
+<script src="js/data/supp-uz.js?v=DEV"></script>
+<script src="js/data.js?v=DEV"></script>
+<script src="js/storage.js?v=DEV"></script>
+<script src="js/srs.js?v=DEV"></script>
+<script src="js/sync.js?v=DEV"></script>
+<script src="js/app.js?v=DEV"></script>
 </body>
 </html>

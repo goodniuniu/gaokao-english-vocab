@@ -73,8 +73,12 @@ var SRS = (function() {
         rec.interval = Math.round(rec.interval * rec.ef);
       }
 
-      // 更新难度系数
-      rec.ef = rec.ef + (0.1 - (1 - 1) * (0.08 + (1 - 1) * 0.02));
+      // 更新难度系数（SM-2 简化版：答对 q=4）
+      // 公式: EF' = EF + (0.1 - (5-q)*(0.08 + (5-q)*0.02))
+      // q=4 时: EF' = EF + (0.1 - 1*(0.08+0.02)) = EF + 0
+      // 这里采用 q=5（完美答对）使 EF 缓慢增长，更贴合学习规律
+      var q = 5;
+      rec.ef = rec.ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
       if (rec.ef < 1.3) rec.ef = 1.3;
       if (rec.ef > 3.0) rec.ef = 3.0;
 
@@ -87,10 +91,11 @@ var SRS = (function() {
         rec.level = LEVELS.LEARNING;
       }
     } else {
-      // 答错：重置
+      // 答错：重置连续答对，但保留历史统计
       rec.reps = 0;
       rec.interval = 0;
-      rec.ef = Math.max(1.3, rec.ef - 0.2);
+      // 答错时降 EF（q=2，较困难），降幅 0.2+
+      rec.ef = Math.max(1.3, rec.ef - 0.25);
       if (rec.level > LEVELS.NEW) rec.level--;
     }
 

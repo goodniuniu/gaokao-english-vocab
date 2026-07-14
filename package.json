@@ -1,0 +1,11 @@
+{
+  "name": "gaokao-english-vocab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "高考英语单词练习",
+  "scripts": {
+    "build": "node build.js",
+    "preview": "node build.js && cd dist && python -m http.server 8125",
+    "deploy": "node build.js && npx gh-pages -d dist"
+  }
+}

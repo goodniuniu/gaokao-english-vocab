@@ -227,6 +227,7 @@ export default {
           done: 0,
           custom: [],
           daily: { date: '', count: 0, goal: 20 },
+          streak: { current: 0, best: 0, lastDate: '' },
           settings: { autoSpeak: false, keyboardShortcuts: true, dailyGoal: 20 },
           lastSync: Date.now(),
         };
@@ -288,6 +289,7 @@ export default {
           done: body.done || 0,
           custom: body.custom || [],
           daily: body.daily || { date: '', count: 0, goal: 20 },
+          streak: body.streak || { current: 0, best: 0, lastDate: '' },
           settings: body.settings || {},
           lastSync: now,
         };

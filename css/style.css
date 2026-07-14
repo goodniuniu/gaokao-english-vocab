@@ -776,8 +776,8 @@ input.spell:focus {
 .srs-badge.familiar { background: #e3f2fd; color: #1976d2; }
 .srs-badge.mastered { background: var(--ok-light); color: var(--ok); }
 
-[data-theme="dark"] .srs-badge.learning { background: #3d2f0a; }
-[data-theme="dark"] .srs-badge.familiar { background: #1a2942; }
+[data-theme="dark"] .srs-badge.learning { background: #3d2f0a; color: #ffb74d; }
+[data-theme="dark"] .srs-badge.familiar { background: #1a2942; color: #64b5f6; }
 
 /* 评级按钮 */
 .rate-btns {
@@ -1023,7 +1023,13 @@ footer b { color: var(--brand); }
   transform: translateX(20px);
 }
 
-/* 每日目标进度 */
+/* 每日目标 + 连续天数 */
+.daily-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
 .daily-goal {
   display: flex;
   align-items: center;
@@ -1032,7 +1038,38 @@ footer b { color: var(--brand); }
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  margin-bottom: 14px;
+  flex: 1;
+}
+
+.streak-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.streak-box .icon {
+  font-size: 24px;
+}
+
+.streak-box .text .t {
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.streak-box .text .t span {
+  color: #f57c00;
+  font-size: 16px;
+}
+
+.streak-box .text .d {
+  font-size: 11px;
+  color: var(--sub);
 }
 
 .daily-goal .icon {
@@ -1101,6 +1138,13 @@ footer b { color: var(--brand); }
   .user-badge .name { max-width: 60px; }
   .result .score { font-size: 38px; }
   .qhead { font-size: 12px; }
+  .streak-box .text .t { font-size: 12px; }
+  .streak-box .text .d { font-size: 11px; }
+  .streak-box .icon { font-size: 20px; }
+}
+
+@media (max-width: 420px) {
+  .daily-row { flex-direction: column; }
 }
 
 @media (max-width: 380px) {

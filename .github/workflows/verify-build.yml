@@ -1,0 +1,37 @@
+name: Verify Build
+
+# PR 或 push 到 main 时验证构建不报错
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'js/**'
+      - 'css/**'
+      - 'build.js'
+      - '.github/workflows/verify-build.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run build
+        run: node build.js
+
+      - name: Verify dist has hashed references
+        run: |
+          if ! grep -q '?v=[a-f0-9]' dist/index.html; then
+            echo "::error::No hashed references found in dist/index.html"
+            exit 1
+          fi
+          echo "✅ Build verification passed"
+          echo "Hashed files:"
+          grep -oP '(?:src|href)="[^"]+\?v=[a-f0-9]{8}"' dist/index.html | sed 's/^/  /'

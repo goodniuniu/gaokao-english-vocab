@@ -134,6 +134,7 @@ var Sync = (function() {
       Storage.setDoneCount(d.done || 0);
       Storage.setCustomWords(d.custom || []);
       Storage.setDailyProgress(d.daily || { date: '', count: 0, goal: 20 });
+      Storage.setStreak(d.streak || { current: 0, best: 0, lastDate: '' });
 
       if (d.settings) {
         var settings = Storage.getSettings();
@@ -148,6 +149,7 @@ var Sync = (function() {
       Storage.setDoneCount(0);
       Storage.setCustomWords([]);
       Storage.setDailyProgress({ date: '', count: 0, goal: 20 });
+      Storage.setStreak({ current: 0, best: 0, lastDate: '' });
     }
 
     return data;
@@ -165,6 +167,7 @@ var Sync = (function() {
       done: Storage.getDoneCount(),
       custom: Storage.getCustomWords(),
       daily: Storage.getDailyProgress(),
+      streak: Storage.getStreak(),
       settings: Storage.getSettings(),
     };
 
@@ -214,6 +217,7 @@ var Sync = (function() {
             done: Storage.getDoneCount(),
             custom: Storage.getCustomWords(),
             daily: Storage.getDailyProgress(),
+            streak: Storage.getStreak(),
             settings: Storage.getSettings(),
           });
           navigator.sendBeacon(

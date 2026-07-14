@@ -62,6 +62,7 @@ var Storage = (function() {
     write(PREFIX + id + '_done', 0);
     write(PREFIX + id + '_custom', []);
     write(PREFIX + id + '_daily', { date: '', count: 0, goal: 20 });
+    write(PREFIX + id + '_streak', { current: 0, best: 0, lastDate: '' });
     return id;
   }
 
@@ -75,6 +76,7 @@ var Storage = (function() {
     remove(PREFIX + id + '_done');
     remove(PREFIX + id + '_custom');
     remove(PREFIX + id + '_daily');
+    remove(PREFIX + id + '_streak');
     if (getCurrentUser() === id) {
       localStorage.removeItem(CURRENT_KEY);
     }
@@ -154,6 +156,16 @@ var Storage = (function() {
     if (k) write(k, data);
   }
 
+  function getStreak() {
+    var k = userKey('streak');
+    return k ? (read(k) || { current: 0, best: 0, lastDate: '' }) : { current: 0, best: 0, lastDate: '' };
+  }
+
+  function setStreak(data) {
+    var k = userKey('streak');
+    if (k) write(k, data);
+  }
+
   // ---- 全局设置 ----
   function getTheme() {
     return localStorage.getItem(THEME_KEY) || 'light';
@@ -196,6 +208,8 @@ var Storage = (function() {
     setCustomWords: setCustomWords,
     getDailyProgress: getDailyProgress,
     setDailyProgress: setDailyProgress,
+    getStreak: getStreak,
+    setStreak: setStreak,
     // global
     getTheme: getTheme,
     setTheme: setTheme,
