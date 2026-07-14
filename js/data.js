@@ -4,10 +4,15 @@
 
 const ALL_RAW = [].concat(
   window.VOCAB_A || [],
+  window.VOCAB_A_SUPP || [],
   window.VOCAB_F || [],
+  window.VOCAB_F_SUPP || [],
   window.VOCAB_K || [],
+  window.VOCAB_K_SUPP || [],
   window.VOCAB_P || [],
-  window.VOCAB_U || []
+  window.VOCAB_P_SUPP || [],
+  window.VOCAB_U || [],
+  window.VOCAB_U_SUPP || []
 );
 
 // 转为对象格式
