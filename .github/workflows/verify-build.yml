@@ -40,3 +40,11 @@ jobs:
           echo "✅ Build verification passed"
           echo "Hashed files:"
           grep -oP '(?:src|href)="[^"]+\?v=[a-f0-9]{8}"' dist/index.html | sed 's/^/  /'
+
+      - name: Verify service worker was injected
+        run: |
+          if grep -q '__PRECACHE_LIST__\|__CACHE_VERSION__' dist/sw.js; then
+            echo "::error::dist/sw.js still contains build placeholders"
+            exit 1
+          fi
+          echo "✅ Service worker injection passed"

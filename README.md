@@ -37,6 +37,7 @@
 - 🌙 **暗色模式**：夜间学习友好，支持手动切换
 - ⌨️ **键盘快捷键**：A-D 选择答案 / 回车下一题 / 空格翻卡片
 - 📱 **响应式设计**：完美适配手机和桌面端
+- 📲 **PWA 离线支持**：可"添加到主屏幕"，Service Worker 预缓存全量资源，离线可学
 
 ## 🚀 使用
 
@@ -73,6 +74,9 @@ gaokao-english-vocab/
 │       ├── vocab-*.js      # 基础词库 950 词（A-E / F-J / K-O / P-T / U-Z）
 │       └── supp-*.js       # ECDICT 补充词库 2550 词（同字母分段）
 ├── worker/                 # Cloudflare Worker 云同步后端（KV 存储）
+├── icons/                  # PWA 图标（192/512/maskable/apple-touch-icon）
+├── manifest.webmanifest    # PWA 应用清单
+├── sw.js                   # Service Worker（预缓存清单由 build.js 注入）
 ├── test/
 │   └── srs.test.js         # SRS 算法单元测试（Node 内置 test runner）
 ├── build.js                # 构建脚本（复制到 dist/ 并替换 ?v= 内容哈希）

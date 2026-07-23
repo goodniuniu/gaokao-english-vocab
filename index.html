@@ -8,6 +8,10 @@
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 <title>高考英语单词练习</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="高考单词" />
 <link rel="stylesheet" href="css/style.css?v=DEV" />
 </head>
 <body>
@@ -301,5 +305,15 @@
 <script src="js/srs.js?v=DEV"></script>
 <script src="js/sync.js?v=DEV"></script>
 <script src="js/app.js?v=DEV"></script>
+<script>
+// PWA：注册 Service Worker（仅 http(s) 环境；构建后 sw.js 内含预缓存清单）
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').catch(function(err) {
+      console.warn('SW 注册失败:', err);
+    });
+  });
+}
+</script>
 </body>
 </html>

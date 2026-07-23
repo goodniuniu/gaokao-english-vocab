@@ -119,6 +119,30 @@ html = html.replace(refRegex, (match, filePath) => {
 
 fs.writeFileSync(distHtmlPath, html);
 
+// 3.5 注入 Service Worker 预缓存清单与版本号
+const swPath = path.join(DIST, 'sw.js');
+if (fs.existsSync(swPath)) {
+  let sw = fs.readFileSync(swPath, 'utf-8');
+  const precache = [];
+  const hashInput = [];
+  for (const file of allFiles) {
+    if (file.relPath === 'sw.js') continue;
+    const h = hashFile(path.join(DIST, file.relPath));
+    hashInput.push(file.relPath + h);
+    // js/css 带 ?v=hash（与 index.html 引用一致），其余（html/图标/manifest）用裸路径
+    if (/\.(js|css)$/.test(file.relPath)) {
+      precache.push(file.relPath + '?v=' + h);
+    } else {
+      precache.push(file.relPath);
+    }
+  }
+  const version = crypto.createHash('md5').update(hashInput.sort().join('|')).digest('hex').slice(0, 8);
+  sw = sw.replace("'__CACHE_VERSION__'", JSON.stringify(version))
+         .replace('const PRECACHE = __PRECACHE_LIST__;', 'const PRECACHE = ' + JSON.stringify(precache, null, 2) + ';');
+  fs.writeFileSync(swPath, sw);
+  console.log(`   Service Worker: 预缓存 ${precache.length} 个文件，缓存版本 ${version}`);
+}
+
 // 4. 输出结果
 console.log(`✅ 构建完成！\n`);
 console.log(`   输出目录: dist/`);
