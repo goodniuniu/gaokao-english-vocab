@@ -360,7 +360,12 @@ export default {
           return json({ ok: false, error: '数据过大，超过 1MB 上限' }, 413);
         }
 
-        const body = JSON.parse(text);
+        let body;
+        try {
+          body = JSON.parse(text);
+        } catch(e) {
+          return json({ ok: false, error: '请求体不是合法的 JSON' }, 400);
+        }
         const invalid = validateSyncBody(body);
         if (invalid) {
           return json({ ok: false, error: '数据校验失败: ' + invalid }, 400);

@@ -22,6 +22,9 @@ var Sync = (function() {
   // 待同步标记
   var pendingSync = false;
 
+  // beforeunload 命名处理器引用（避免重复注册/无法移除）
+  var beforeUnloadHandler = null;
+
   // ===== 基础工具 =====
   function isConfigured() {
     return API_BASE && API_BASE.length > 0;
@@ -64,6 +67,35 @@ var Sync = (function() {
     return API_BASE;
   }
 
+  // 将服务器错误映射为对用户友好的中文提示
+  function friendlyError(status, data) {
+    var raw = data.error || '';
+
+    // 已知英文错误文案的中文映射
+    var enToZh = {
+      'Origin not allowed': '访问被拒绝，请通过官方网站打开本应用',
+    };
+    if (enToZh[raw]) return enToZh[raw];
+
+    // "Not found: /api/xxx" 类通用拦截
+    if (raw.indexOf('Not found') === 0) return '请求的接口不存在，请更新应用后重试';
+
+    // 服务器返回的已经是中文，直接用
+    if (raw && /[\u4e00-\u9fa5]/.test(raw)) return raw;
+
+    // 按 HTTP 状态码给出默认提示
+    var statusMsg = {
+      400: '请求数据格式有误',
+      403: '访问被拒绝，请通过官方网站打开本应用',
+      404: '同步码不存在或数据未找到',
+      409: '云端数据已被其他设备更新',
+      413: '数据量过大，请检查自定义单词数量',
+      429: '请求过于频繁，请稍后再试',
+      500: '服务器内部错误，请稍后重试',
+    };
+    return statusMsg[status] || raw || ('请求失败 (HTTP ' + status + ')');
+  }
+
   async function apiCall(path, options) {
     if (!isConfigured()) {
       throw new Error('未配置同步服务器地址');
@@ -90,7 +122,7 @@ var Sync = (function() {
     }
 
     if (!resp.ok || data.ok === false) {
-      var err = new Error(data.error || ('请求失败 (HTTP ' + resp.status + ')'));
+      var err = new Error(friendlyError(resp.status, data));
       err.status = resp.status;
       err.code = data.code || '';
       err.lastSync = data.lastSync || 0;
@@ -110,8 +142,13 @@ var Sync = (function() {
       setSyncCode(data.syncCode);
       setSyncName(name);
       if (data.lastSync) setLastSync(data.lastSync);
-      // 将本地数据上传
-      await uploadAll();
+      // 将本地数据上传（失败不阻塞注册成功，标记待同步以便后续自动重试）
+      try {
+        await uploadAll();
+      } catch(e) {
+        markPending();
+        console.warn('注册后初次上传失败，将在后续自动重试:', e.message);
+      }
     }
     return data;
   }
@@ -257,6 +294,18 @@ var Sync = (function() {
     }
   }
 
+  // ===== 页面关闭前用 sendBeacon 尝试同步 =====
+  function beforeUnloadSync() {
+    if (pendingSync) {
+      try {
+        navigator.sendBeacon(
+          API_BASE + '/api/sync/' + getSyncCode(),
+          new Blob([JSON.stringify(buildPayload())], { type: 'application/json' })
+        );
+      } catch(e) {}
+    }
+  }
+
   // ===== 启动自动同步 =====
   function startAutoSync() {
     stopAutoSync();
@@ -266,24 +315,21 @@ var Sync = (function() {
       doSyncIfPending();
     }, AUTO_SYNC_INTERVAL);
 
-    // 页面关闭前同步
-    window.addEventListener('beforeunload', function() {
-      if (pendingSync) {
-        // 用 sendBeacon 尝试同步
-        try {
-          navigator.sendBeacon(
-            API_BASE + '/api/sync/' + getSyncCode(),
-            new Blob([JSON.stringify(buildPayload())], { type: 'application/json' })
-          );
-        } catch(e) {}
-      }
-    });
+    // 页面关闭前同步（用命名处理器避免重复注册）
+    if (!beforeUnloadHandler) {
+      beforeUnloadHandler = beforeUnloadSync;
+      window.addEventListener('beforeunload', beforeUnloadHandler);
+    }
   }
 
   function stopAutoSync() {
     if (autoSyncTimer) {
       clearInterval(autoSyncTimer);
       autoSyncTimer = null;
+    }
+    if (beforeUnloadHandler) {
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
+      beforeUnloadHandler = null;
     }
   }
 

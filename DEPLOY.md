@@ -205,3 +205,108 @@ npx wrangler kv key get --binding=VOCAB_KV "data:AB3XK9"
 - 同步码使用 `crypto.getRandomValues` 生成（加密安全随机数）
 - 枚举敏感接口按 IP 限流（KV 固定窗口计数，`rl:` 前缀 key 自动过期）；更高强度防护可在 Cloudflare Dashboard 配置 Rate Limiting 规则
 - `ALLOWED_ORIGINS`（`wrangler.toml` `[vars]`）限制可调用 API 的网站来源；`localhost/127.0.0.1` 始终放行便于本地开发，自建部署时改成自己的前端域名即可
+
+---
+
+## ALLOWED_ORIGINS 配置详解
+
+Worker 通过检查浏览器请求的 `Origin` 头来防止恶意网站借用户浏览器调用 API。配置在 `worker/wrangler.toml`：
+
+```toml
+[vars]
+ALLOWED_ORIGINS = "https://你的域名.com,http://www.你的域名.com,https://www.你的域名.com"
+```
+
+**关键规则**（踩过的坑）：
+
+1. **逗号分隔，精确匹配**。`Origin` = scheme + host + port，不含路径。以下都被视为**不同**的 Origin：
+   - `https://example.com` ≠ `http://example.com`（协议不同）
+   - `https://example.com` ≠ `https://www.example.com`（www 和裸域不同）
+   - `https://example.com` ≠ `https://example.com:8080`（端口不同）
+
+2. **`localhost` / `127.0.0.1` 始终放行**，无需配进白名单（本地开发友好）。
+
+3. **不配或设为 `*` = 不限制**（任何网站都能调用，仅适用于无敏感数据的场景）。
+
+4. **改完必须重新部署**：`cd worker && npx wrangler deploy`。
+
+5. **`Origin: null` 会被拦截**。以下场景浏览器会发送 `Origin: null`：
+   - 从 `file://` 协议打开（双击 index.html）
+   - iframe sandbox
+   - 浏览器严格隐私模式
+   如果你需要支持这些场景，把白名单设为 `*` 或单独处理。
+
+---
+
+## 自定义域名与 CDN 配置
+
+如果你除了 `*.github.io` 还用自己的域名（如 `www.example.com`），按以下步骤配置。
+
+### 架构选择
+
+```
+方案 A（简单，无 CDN）：
+  浏览器 → DNS 直接指向 GitHub Pages IP → GitHub Pages（含免费 HTTPS 证书）
+
+方案 B（国内加速，推荐面向国内用户）：
+  浏览器 → DNS 指向 EdgeOne/Cloudflare CDN → 回源 → GitHub Pages
+  注意：CDN 节点必须有自己的 SSL 证书（不能白嫖 GitHub 的）
+```
+
+### 方案 B 关键配置（以 EdgeOne 为例）
+
+1. **DNS**：CNAME 把 `www` 指向 EdgeOne 给的 CNAME 地址。**同一主机只能有一条 CNAME**，删掉旧的 GitHub Pages CNAME。
+
+2. **EdgeOne 回源**：
+   - 源站地址：`你的用户名.github.io`
+   - 回源协议：HTTPS 或协议跟随
+   - **回源 Host：你的自定义域名**（如 `www.example.com`），**不是** `*.github.io`
+     （因为 GitHub Pages 已绑定自定义域名，用 `*.github.io` 做 Host 会触发 301 重定向循环）
+
+3. **EdgeOne SSL 证书**：申请免费 DV 证书。CDN 架构下浏览器跟 CDN 握手，GitHub 的证书管不到这一段。
+
+4. **Worker 白名单**：把你的域名加入 `ALLOWED_ORIGINS`（http 和 https 都要加）。
+
+---
+
+## 常见排障
+
+### 同步报 403
+
+**症状**：点同步/自动同步时提示"访问被拒绝"或 HTTP 403。
+
+**根因**：Worker 的 `ALLOWED_ORIGINS` 白名单不包含你当前访问的域名。
+
+**排查**：
+1. 按 F12 → Network → 找到 403 的请求 → 看 Request Headers 里的 `Origin:` 值
+2. 把这个 Origin 加入 `worker/wrangler.toml` 的 `ALLOWED_ORIGINS`
+3. `cd worker && npx wrangler deploy`
+
+**常见 Origin 陷阱**：
+- 从 `file://` 打开 → `Origin: null` → 被拦截
+- 从 `http://` 访问但白名单只写了 `https://` → 被拦截
+- 用了自定义域名但白名单没更新 → 被拦截
+
+### HTTPS 时好时坏 / "连接不安全"
+
+**症状**：刷新页面有时正常有时报证书错误。
+
+**根因**：DNS 里同一主机有多条 CNAME（如同时指向 GitHub Pages 和 CDN），DNS 轮询导致每次解析到不同服务器，而不同服务器的证书覆盖范围不同。
+
+**解决**：同一主机只保留一条 CNAME，删掉冲突的那条。
+
+### Worker 改了白名单但不生效
+
+**检查**：
+```bash
+# 确认部署成功
+cd worker && npx wrangler deploy
+
+# 验证 Origin 是否放行（把 Origin 换成你的）
+curl -sS -o /dev/null -w "HTTP %{http_code}\n" -X POST \
+  -H "Origin: https://你的域名.com" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"test"}' \
+  https://你的worker地址/api/register
+```
+返回 `HTTP 200` 表示白名单已生效。

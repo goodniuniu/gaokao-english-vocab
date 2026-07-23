@@ -14,4 +14,5 @@ id = "e83869e52a5f4283887859d76eba1f73"
 [vars]
 # Origin 白名单（逗号分隔）：只有名单内的网站能从浏览器调用 API
 # localhost/127.0.0.1 始终放行（本地开发）；设为 "*" 则不限制
-ALLOWED_ORIGINS = "https://goodniuniu.github.io"
+# 注意：Origin = scheme + host + port，不含路径，严格区分 http/https 和 www/裸域
+ALLOWED_ORIGINS = "https://goodniuniu.github.io,http://www.goodniuniu.com,https://www.goodniuniu.com,http://goodniuniu.com,https://goodniuniu.com"
