@@ -5,7 +5,7 @@
   "description": "高考英语单词练习",
   "scripts": {
     "build": "node build.js",
-    "test": "node --test test/",
+    "test": "node --test",
     "preview": "node build.js && cd dist && python -m http.server 8125",
     "deploy": "node build.js && npx gh-pages -d dist"
   }
