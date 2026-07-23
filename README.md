@@ -1,6 +1,6 @@
 # 高考英语单词练习
 
-> 由 **WorkBuddy（混元 Hy3 模型）** 从零生成并逐步完善的高考英语单词练习应用。词库覆盖高考英语词汇（950+ 高频词，含音标 / 词性 / 中文释义 / 英文例句）。
+> 由 **WorkBuddy（混元 Hy3 模型）** 从零生成并逐步完善的高考英语单词练习应用。词库覆盖高考英语 3500 词（950 基础高频词 + ECDICT 补充 2550 词，全部含音标 / 词性 / 中文释义 / 英文例句及翻译）。
 
 ## ✨ 功能
 
@@ -25,6 +25,7 @@
 - 👥 **多用户支持**：本地创建多个学习者档案，数据隔离
 - ✍️ **自定义单词**：用户可添加/编辑/删除自己的单词，自动加入练习题库
 - 💾 **数据隔离**：每个用户有独立的错题本、SRS 数据、历史记录
+- ☁️ **云同步**：6 位同步码跨设备备份/恢复学习数据（Cloudflare Worker + KV）
 
 ### 错题管理
 - 📕 **错题本**：答错的词自动收集、按词去重、`localStorage` 本地保存
@@ -63,26 +64,41 @@ gaokao-english-vocab/
 ├── css/
 │   └── style.css           # 完整样式表（含暗色主题、响应式）
 ├── js/
-│   ├── data.js             # 数据合并加载器
+│   ├── data.js             # 词库合并加载器（10 个词库文件 → WORD_BANK）
 │   ├── storage.js          # 本地存储 + 多用户管理
-│   ├── srs.js              # SM-2 间隔重复算法引擎
+│   ├── srs.js              # SM-2 间隔重复算法引擎（纯函数，可单测）
+│   ├── sync.js             # 云同步客户端（轮询 + sendBeacon）
 │   ├── app.js              # 主应用逻辑
 │   └── data/
-│       ├── vocab-a.js      # A-E 词汇 (200词)
-│       ├── vocab-f.js      # F-J 词汇 (200词)
-│       ├── vocab-k.js      # K-O 词汇 (200词)
-│       ├── vocab-p.js      # P-T 词汇 (200词)
-│       └── vocab-u.js      # U-Z 词汇 (150词)
-├── 小红书文案.md            # 小红书投稿文案
+│       ├── vocab-*.js      # 基础词库 950 词（A-E / F-J / K-O / P-T / U-Z）
+│       └── supp-*.js       # ECDICT 补充词库 2550 词（同字母分段）
+├── worker/                 # Cloudflare Worker 云同步后端（KV 存储）
+├── test/
+│   └── srs.test.js         # SRS 算法单元测试（Node 内置 test runner）
+├── build.js                # 构建脚本（复制到 dist/ 并替换 ?v= 内容哈希）
+├── .github/workflows/      # CI：验证构建+测试；CD：部署 GitHub Pages
+├── DEPLOY.md               # 部署文档（前端 Pages / 后端 Worker）
 └── README.md               # 本文件
 ```
+
+## 🛠️ 开发
+
+```bash
+npm test          # 运行单元测试（Node 内置 runner，零依赖）
+npm run build     # 构建到 dist/（自动内容哈希，解决缓存问题）
+npm run preview   # 构建并本地预览 http://localhost:8125
+```
+
+> 注意：`dist/` 只包含发布所需文件（index.html / css / js），根目录文档不会对外发布。
 
 ## 🔧 技术栈
 
 - **纯前端**：HTML + CSS + JavaScript，零依赖
 - **数据存储**：localStorage（用户数据、SRS 记录、错题本）
+- **云同步**：Cloudflare Worker + KV（详见 `DEPLOY.md`）
 - **发音**：Web Speech API (SpeechSynthesis)
 - **算法**：SM-2 间隔重复算法
+- **CI/CD**：GitHub Actions（测试 + 构建验证 + Pages 自动部署）
 - **兼容**：Chrome / Firefox / Safari / Edge 现代浏览器
 
 ## 🏷️ 标签

@@ -199,6 +199,12 @@ var SRS = (function() {
     getDueWords: getDueWords,
     getNewWords: getNewWords,
     generateSession: generateSession,
-    getStats: getStats
+    getStats: getStats,
+    shuffle: shuffle
   };
 })();
+
+// Node 环境（单元测试）下导出
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = SRS;
+}

@@ -11,6 +11,8 @@ on:
       - 'js/**'
       - 'css/**'
       - 'build.js'
+      - 'test/**'
+      - 'package.json'
       - '.github/workflows/verify-build.yml'
 
 jobs:
@@ -22,6 +24,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Run tests
+        run: npm test
 
       - name: Run build
         run: node build.js

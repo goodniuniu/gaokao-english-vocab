@@ -3,14 +3,7 @@
 // ============================================
 
 // ---- 工具函数 ----
-function shuffle(a) {
-  a = a.slice();
-  for (var i = a.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
-  }
-  return a;
-}
+var shuffle = SRS.shuffle; // 复用 SRS 模块的实现，避免重复维护
 function randInt(n) { return Math.floor(Math.random() * n); }
 function pick(arr) { return arr[randInt(arr.length)]; }
 function $(id) { return document.getElementById(id); }
@@ -26,20 +19,33 @@ var fIdx = 0;
 var flipped = false;
 var toastTimer = null;
 
+// ---- 词库缓存（自定义词变动时调用 invalidateBankCache 使其失效）----
+var bankCache = null;  // 系统词 + 自定义词的合并结果
+var wordIndex = null;  // 小写 word → 词条，供 findWord O(1) 查找
+
+function invalidateBankCache() {
+  bankCache = null;
+  wordIndex = null;
+}
+
 // ---- 获取完整词库（含自定义词） ----
 function getFullBank() {
-  var base = window.WORD_BANK || [];
-  var custom = Storage.getCustomWords();
-  return base.concat(custom);
+  if (!bankCache) {
+    bankCache = (window.WORD_BANK || []).concat(Storage.getCustomWords());
+  }
+  return bankCache;
 }
 
 // 根据单词查找完整信息
 function findWord(word) {
-  var bank = getFullBank();
-  for (var i = 0; i < bank.length; i++) {
-    if (bank[i].word.toLowerCase() === word.toLowerCase()) return bank[i];
+  if (!wordIndex) {
+    wordIndex = {};
+    var bank = getFullBank();
+    for (var i = 0; i < bank.length; i++) {
+      wordIndex[bank[i].word.toLowerCase()] = bank[i];
+    }
   }
-  return null;
+  return wordIndex[String(word).toLowerCase()] || null;
 }
 
 // ---- 发音 ----
@@ -61,10 +67,18 @@ function genMC(mode, fixedWord) {
   var target = fixedWord || pick(bank);
   if (!target) return null;
 
-  var pool = bank.filter(function(w) {
-    return w.word !== target.word;
-  });
-  var wrong = shuffle(pool).slice(0, 3);
+  // 随机抽 3 个干扰项：直接抽样，不 filter 复制整个词库；按小写去重避免与目标词重复
+  var wrong = [];
+  var used = {};
+  used[target.word.toLowerCase()] = true;
+  while (wrong.length < 3 && wrong.length < bank.length - 1) {
+    var w = pick(bank);
+    var k = w.word.toLowerCase();
+    if (!used[k]) {
+      used[k] = true;
+      wrong.push(w);
+    }
+  }
 
   var correctText, options;
   if (mode === 'meaning') {
@@ -366,41 +380,53 @@ function submitSpell() {
   afterAnswer(isRight, q.target);
 }
 
-function afterAnswer(isRight, target) {
-  if (isRight) {
-    correctCount++;
+// ---- 答题记录（测验与卡片共用）----
+// 加入错题本（已有记录则累加错误次数）
+function addToWrongBook(target) {
+  var wb = Storage.getWrongBook();
+  var key = target.word.toLowerCase();
+  if (wb[key]) {
+    wb[key].wrong = (wb[key].wrong || 0) + 1;
   } else {
-    // 加入错题本
-    var wb = Storage.getWrongBook();
-    var key = target.word.toLowerCase();
-    if (wb[key]) {
-      wb[key].wrong = (wb[key].wrong || 0) + 1;
-    } else {
-      wb[key] = {
-        word: target.word,
-        phonetic: target.phonetic,
-        pos: target.pos,
-        meaning: target.meaning,
-        exampleEn: target.exampleEn || '',
-        exampleZh: target.exampleZh || '',
-        wrong: 1
-      };
-    }
-    Storage.setWrongBook(wb);
-    wrongThisRound.push(target.word);
+    wb[key] = {
+      word: target.word,
+      phonetic: target.phonetic,
+      pos: target.pos,
+      meaning: target.meaning,
+      exampleEn: target.exampleEn || '',
+      exampleZh: target.exampleZh || '',
+      wrong: 1
+    };
   }
+  Storage.setWrongBook(wb);
+}
 
-  // 更新 SRS
+// 更新 SRS 记录
+function recordAnswer(target, isCorrect) {
   var srsData = Storage.getSRSData();
-  SRS.updateRecord(srsData, target.word, isRight);
+  SRS.updateRecord(srsData, target.word, isCorrect);
   Storage.setSRSData(srsData);
+}
 
-  // 更新每日进度
+// 每日进度 +1
+function bumpDailyProgress() {
   var daily = Storage.getDailyProgress();
   var today = new Date().toDateString();
   if (daily.date !== today) { daily = { date: today, count: 0, goal: daily.goal }; }
   daily.count++;
   Storage.setDailyProgress(daily);
+}
+
+function afterAnswer(isRight, target) {
+  if (isRight) {
+    correctCount++;
+  } else {
+    addToWrongBook(target);
+    wrongThisRound.push(target.word);
+  }
+
+  recordAnswer(target, isRight);
+  bumpDailyProgress();
 
   // 更新连续学习天数
   updateStreak();
@@ -663,37 +689,14 @@ function flashNav(d) {
 function flashRate(known) {
   var w = flashList[fIdx];
 
-  // 更新 SRS 记录
-  var srsData = Storage.getSRSData();
-  SRS.updateRecord(srsData, w.word, known);
-  Storage.setSRSData(srsData);
+  recordAnswer(w, known);
 
   // 不认识的词加入错题本
   if (!known) {
-    var wb = Storage.getWrongBook();
-    var key = w.word.toLowerCase();
-    if (wb[key]) {
-      wb[key].wrong = (wb[key].wrong || 0) + 1;
-    } else {
-      wb[key] = {
-        word: w.word,
-        phonetic: w.phonetic,
-        pos: w.pos,
-        meaning: w.meaning,
-        exampleEn: w.exampleEn || '',
-        exampleZh: w.exampleZh || '',
-        wrong: 1
-      };
-    }
-    Storage.setWrongBook(wb);
+    addToWrongBook(w);
   }
 
-  // 更新每日进度
-  var daily = Storage.getDailyProgress();
-  var today = new Date().toDateString();
-  if (daily.date !== today) { daily = { date: today, count: 0, goal: daily.goal }; }
-  daily.count++;
-  Storage.setDailyProgress(daily);
+  bumpDailyProgress();
 
   // 更新连续学习天数
   updateStreak();
@@ -770,6 +773,7 @@ function saveCustomWord(oldWord) {
   });
 
   Storage.setCustomWords(custom);
+  invalidateBankCache();
   hideModal('customModal');
   toast(oldWord ? '已更新' : '已添加');
   renderCustomWords();
@@ -826,6 +830,7 @@ function deleteCustomWord(word) {
   var custom = Storage.getCustomWords();
   custom = custom.filter(function(w) { return w.word !== word; });
   Storage.setCustomWords(custom);
+  invalidateBankCache();
   renderCustomWords();
   refreshStats();
   toast('已删除');

@@ -24,8 +24,17 @@ const crypto = require('crypto');
 const ROOT = __dirname;
 const DIST = path.join(ROOT, 'dist');
 
-// 需要忽略的文件/目录
-const IGNORE = ['dist', '.git', '.workbuddy', 'node_modules', 'worker', 'build.js', '.gitignore'];
+// 需要忽略的文件/目录（不发布到 GitHub Pages）
+const IGNORE = ['dist', '.git', '.workbuddy', 'node_modules', 'worker', '.github', 'test',
+  'build.js', '.gitignore', '.gitattributes', 'package.json', 'package-lock.json'];
+
+// 判断文件是否应跳过发布
+function shouldSkip(relPath) {
+  if (IGNORE.some(ig => relPath === ig || relPath.startsWith(ig + '/'))) return true;
+  // 根目录的 Markdown 文档（README/DEPLOY/营销文案/排障指南等）属于内部资料，不对外发布
+  if (!relPath.includes('/') && relPath.endsWith('.md')) return true;
+  return false;
+}
 
 // 计算文件内容的 8 位哈希
 function hashFile(filePath) {
@@ -41,7 +50,7 @@ function collectFiles(dir, base) {
     const fullPath = path.join(dir, entry.name);
     const relPath = path.relative(base, fullPath).replace(/\\/g, '/');
 
-    if (IGNORE.some(ig => relPath === ig || relPath.startsWith(ig + '/'))) continue;
+    if (shouldSkip(relPath)) continue;
 
     if (entry.isDirectory()) {
       results.push(...collectFiles(fullPath, base));
