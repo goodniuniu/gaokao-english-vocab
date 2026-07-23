@@ -1,0 +1,2 @@
+# 统一仓库内文本文件换行符为 LF，避免 Windows/WSL 编辑器产生全文件 CRLF 假变更
+* text=auto eol=lf
