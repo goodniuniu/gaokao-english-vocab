@@ -26,6 +26,8 @@
 - ✍️ **自定义单词**：用户可添加/编辑/删除自己的单词，自动加入练习题库
 - 💾 **数据隔离**：每个用户有独立的错题本、SRS 数据、历史记录
 - ☁️ **云同步**：6 位同步码跨设备备份/恢复学习数据（Cloudflare Worker + KV）
+- 🤝 **冲突自动合并**：多设备同时使用时按字段智能合并进度，不互相覆盖
+- 🛡️ **同步安全**：加密安全随机数生成同步码、敏感接口按 IP 限流、API 来源白名单
 
 ### 错题管理
 - 📕 **错题本**：答错的词自动收集、按词去重、`localStorage` 本地保存
@@ -68,17 +70,19 @@ gaokao-english-vocab/
 │   ├── data.js             # 词库合并加载器（10 个词库文件 → WORD_BANK）
 │   ├── storage.js          # 本地存储 + 多用户管理
 │   ├── srs.js              # SM-2 间隔重复算法引擎（纯函数，可单测）
-│   ├── sync.js             # 云同步客户端（轮询 + sendBeacon）
+│   ├── merge.js            # 多设备同步冲突合并（纯函数，可单测）
+│   ├── sync.js             # 云同步客户端（轮询 + sendBeacon + 409 冲突处理）
 │   ├── app.js              # 主应用逻辑
 │   └── data/
 │       ├── vocab-*.js      # 基础词库 950 词（A-E / F-J / K-O / P-T / U-Z）
 │       └── supp-*.js       # ECDICT 补充词库 2550 词（同字母分段）
-├── worker/                 # Cloudflare Worker 云同步后端（KV 存储）
+├── worker/                 # Cloudflare Worker 云同步后端（KV 存储，限流/校验/冲突检测）
 ├── icons/                  # PWA 图标（192/512/maskable/apple-touch-icon）
 ├── manifest.webmanifest    # PWA 应用清单
 ├── sw.js                   # Service Worker（预缓存清单由 build.js 注入）
 ├── test/
-│   └── srs.test.js         # SRS 算法单元测试（Node 内置 test runner）
+│   ├── srs.test.js         # SRS 算法单元测试（Node 内置 test runner）
+│   └── merge.test.js       # 冲突合并单元测试
 ├── build.js                # 构建脚本（复制到 dist/ 并替换 ?v= 内容哈希）
 ├── .github/workflows/      # CI：验证构建+测试；CD：部署 GitHub Pages
 ├── DEPLOY.md               # 部署文档（前端 Pages / 后端 Worker）
@@ -99,9 +103,11 @@ npm run preview   # 构建并本地预览 http://localhost:8125
 
 - **纯前端**：HTML + CSS + JavaScript，零依赖
 - **数据存储**：localStorage（用户数据、SRS 记录、错题本）
-- **云同步**：Cloudflare Worker + KV（详见 `DEPLOY.md`）
+- **云同步**：Cloudflare Worker + KV（详见 `DEPLOY.md`），`lastSync` 版本戳检测多设备冲突，客户端自动按字段合并
+- **同步安全**：`crypto.getRandomValues` 同步码、KV 固定窗口限流、`ALLOWED_ORIGINS` 来源白名单、请求体大小/类型校验
 - **发音**：Web Speech API (SpeechSynthesis)
 - **算法**：SM-2 间隔重复算法
+- **PWA**：manifest + Service Worker 预缓存（版本化，随构建自动更新）
 - **CI/CD**：GitHub Actions（测试 + 构建验证 + Pages 自动部署）
 - **兼容**：Chrome / Firefox / Safari / Edge 现代浏览器
 
