@@ -26,11 +26,14 @@ function json(data, status = 200) {
 }
 
 // 生成同步码（6位字母数字，易记忆）
+// 使用加密安全随机数；chars 长度 32 是 2 的幂，取模无偏
 function generateSyncCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 去掉易混淆的 IO01
+  const buf = new Uint32Array(6);
+  crypto.getRandomValues(buf);
   let code = '';
   for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
+    code += chars[buf[i] % chars.length];
   }
   return code;
 }
@@ -43,6 +46,50 @@ function generateUserId() {
 // 验证同步码格式
 function isValidSyncCode(code) {
   return /^[A-Z2-9]{6}$/.test(code);
+}
+
+// ---- 简易限流（KV 固定窗口计数，按 IP 每分钟）----
+// 只加在枚举敏感接口（check/register/data），常规 /api/sync 不限，
+// 以免正常使用的计数写入耗尽 KV 免费写额度。
+// 更高强度的防护建议在 Cloudflare Dashboard 配置 Rate Limiting 规则。
+async function isRateLimited(env, request, limitPerMinute) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const bucket = Math.floor(Date.now() / 60000);
+  const key = 'rl:' + ip + ':' + bucket;
+  const count = parseInt((await env.VOCAB_KV.get(key)) || '0', 10);
+  if (count >= limitPerMinute) return true;
+  await env.VOCAB_KV.put(key, String(count + 1), { expirationTtl: 180 });
+  return false;
+}
+
+// ---- /api/sync 请求体校验 ----
+// 返回 null 表示合法，否则返回错误信息
+const MAX_BODY_BYTES = 1024 * 1024;   // 1MB（正常全量数据 < 400KB）
+const MAX_CUSTOM_WORDS = 2000;
+
+function validateSyncBody(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return '请求体必须是 JSON 对象';
+  }
+  const objFields = ['srs', 'wrong', 'best', 'daily', 'streak', 'settings'];
+  for (const k of objFields) {
+    if (body[k] != null && (typeof body[k] !== 'object' || Array.isArray(body[k]))) {
+      return k + ' 必须是对象';
+    }
+  }
+  if (body.done != null && typeof body.done !== 'number') return 'done 必须是数字';
+  if (body.baseSync != null && typeof body.baseSync !== 'number') return 'baseSync 必须是数字';
+  if (body.custom != null) {
+    if (!Array.isArray(body.custom)) return 'custom 必须是数组';
+    if (body.custom.length > MAX_CUSTOM_WORDS) return 'custom 超过 ' + MAX_CUSTOM_WORDS + ' 条上限';
+    for (const w of body.custom) {
+      if (!w || typeof w.word !== 'string' || typeof w.meaning !== 'string'
+        || w.word.length > 100 || w.meaning.length > 500) {
+        return 'custom 条目格式非法';
+      }
+    }
+  }
+  return null;
 }
 
 // 同步恢复页面 HTML（内联，不走CDN缓存）
@@ -168,6 +215,19 @@ export default {
     const path = url.pathname;
     const method = request.method;
 
+    // Origin 白名单门禁：防止恶意网站借用户浏览器调用/枚举 API
+    // （凭证在 URL 而非 Cookie，无 Origin 的非浏览器请求如 curl 不受限）
+    // wrangler.toml [vars] ALLOWED_ORIGINS 配置，逗号分隔；未配置或为 * 时不限制
+    const origin = request.headers.get('Origin');
+    const allowedOrigins = (env.ALLOWED_ORIGINS || '*');
+    if (origin && allowedOrigins !== '*') {
+      const allowed = allowedOrigins.split(',').map(s => s.trim());
+      const isLocalDev = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      if (!allowed.includes(origin) && !isLocalDev) {
+        return json({ ok: false, error: 'Origin not allowed' }, 403);
+      }
+    }
+
     // 处理 CORS 预检
     if (method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
@@ -196,6 +256,10 @@ export default {
     // 返回: { syncCode, userId }
     if (path === '/api/register' && method === 'POST') {
       try {
+        if (await isRateLimited(env, request, 5)) {
+          return json({ ok: false, error: '请求过于频繁，请稍后再试' }, 429);
+        }
+
         const body = await request.json();
         const name = (body.name || '学生').toString().slice(0, 20);
 
@@ -209,11 +273,12 @@ export default {
         } while (attempts < 5);
 
         const userId = generateUserId();
+        const now = Date.now();
         const userData = {
           userId,
           name,
           syncCode,
-          createdAt: Date.now(),
+          createdAt: now,
         };
 
         // 存储同步码到 userId 的映射
@@ -229,11 +294,11 @@ export default {
           daily: { date: '', count: 0, goal: 20 },
           streak: { current: 0, best: 0, lastDate: '' },
           settings: { autoSpeak: false, keyboardShortcuts: true, dailyGoal: 20 },
-          lastSync: Date.now(),
+          lastSync: now,
         };
         await env.VOCAB_KV.put('data:' + syncCode, JSON.stringify(emptyData));
 
-        return json({ ok: true, syncCode, userId, name });
+        return json({ ok: true, syncCode, userId, name, lastSync: now });
       } catch (e) {
         return json({ ok: false, error: '注册失败: ' + e.message }, 500);
       }
@@ -245,6 +310,10 @@ export default {
     const dataMatch = path.match(/^\/api\/data\/([A-Z2-9]{6})$/);
     if (dataMatch && method === 'GET') {
       try {
+        if (await isRateLimited(env, request, 20)) {
+          return json({ ok: false, error: '请求过于频繁，请稍后再试' }, 429);
+        }
+
         const syncCode = dataMatch[1];
         const userMeta = await env.VOCAB_KV.get('code:' + syncCode);
         if (!userMeta) {
@@ -268,8 +337,9 @@ export default {
 
     // ---- 上传/同步数据 ----
     // POST /api/sync/:syncCode
-    // body: { srs, wrong, best, done, custom, daily, settings }
-    // 返回: { ok, lastSync }
+    // body: { srs, wrong, best, done, custom, daily, streak, settings, baseSync }
+    // baseSync: 客户端最后一次见到的云端 lastSync，用于多设备冲突检测
+    // 返回: { ok, lastSync }；冲突时 409 { ok:false, code:'conflict', lastSync }
     const syncMatch = path.match(/^\/api\/sync\/([A-Z2-9]{6})$/);
     if (syncMatch && method === 'POST') {
       try {
@@ -279,7 +349,37 @@ export default {
           return json({ ok: false, error: '同步码不存在' }, 404);
         }
 
-        const body = await request.json();
+        // 大小限制（恶意超大 payload 会耗尽 KV 存储与请求额度）
+        const contentLength = parseInt(request.headers.get('Content-Length') || '0', 10);
+        if (contentLength > MAX_BODY_BYTES) {
+          return json({ ok: false, error: '数据过大，超过 1MB 上限' }, 413);
+        }
+
+        const text = await request.text();
+        if (text.length > MAX_BODY_BYTES) {
+          return json({ ok: false, error: '数据过大，超过 1MB 上限' }, 413);
+        }
+
+        const body = JSON.parse(text);
+        const invalid = validateSyncBody(body);
+        if (invalid) {
+          return json({ ok: false, error: '数据校验失败: ' + invalid }, 400);
+        }
+
+        // 冲突检测：云端数据若在 baseSync 之后被其他设备更新，拒绝覆盖
+        const existingStr = await env.VOCAB_KV.get('data:' + syncCode);
+        const existing = existingStr ? JSON.parse(existingStr) : null;
+        const baseSync = typeof body.baseSync === 'number' ? body.baseSync : null;
+        if (baseSync !== null && existing && typeof existing.lastSync === 'number'
+          && existing.lastSync > baseSync) {
+          return json({
+            ok: false,
+            code: 'conflict',
+            error: '云端数据已被其他设备更新',
+            lastSync: existing.lastSync,
+          }, 409);
+        }
+
         const now = Date.now();
 
         const dataToSave = {
@@ -304,17 +404,20 @@ export default {
 
     // ---- 检查同步码是否存在 ----
     // GET /api/check/:syncCode
-    // 返回: { ok, exists, name }
+    // 返回: { ok, exists }（不回显用户名，避免用户枚举）
     const checkMatch = path.match(/^\/api\/check\/([A-Z2-9]{6})$/);
     if (checkMatch && method === 'GET') {
       try {
+        if (await isRateLimited(env, request, 10)) {
+          return json({ ok: false, error: '请求过于频繁，请稍后再试' }, 429);
+        }
+
         const syncCode = checkMatch[1];
         const userMeta = await env.VOCAB_KV.get('code:' + syncCode);
         if (!userMeta) {
           return json({ ok: true, exists: false });
         }
-        const meta = JSON.parse(userMeta);
-        return json({ ok: true, exists: true, name: meta.name });
+        return json({ ok: true, exists: true });
       } catch (e) {
         return json({ ok: false, error: e.message }, 500);
       }

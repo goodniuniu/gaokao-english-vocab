@@ -12,6 +12,8 @@ var Sync = (function() {
   // 同步码本地存储 key
   var SYNC_CODE_KEY = 'gev_sync_code';
   var SYNC_NAME_KEY = 'gev_sync_name';
+  // 客户端最后一次见到的云端 lastSync（多设备冲突检测基线）
+  var LAST_SYNC_KEY = 'gev_last_sync';
 
   // 自动同步间隔（毫秒）- 2分钟
   var AUTO_SYNC_INTERVAL = 2 * 60 * 1000;
@@ -41,6 +43,15 @@ var Sync = (function() {
   function setSyncName(name) {
     if (name) localStorage.setItem(SYNC_NAME_KEY, name);
     else localStorage.removeItem(SYNC_NAME_KEY);
+  }
+
+  function getLastSync() {
+    return parseInt(localStorage.getItem(LAST_SYNC_KEY) || '0', 10);
+  }
+
+  function setLastSync(ts) {
+    if (ts) localStorage.setItem(LAST_SYNC_KEY, String(ts));
+    else localStorage.removeItem(LAST_SYNC_KEY);
   }
 
   function setApiBase(url) {
@@ -79,7 +90,11 @@ var Sync = (function() {
     }
 
     if (!resp.ok || data.ok === false) {
-      throw new Error(data.error || ('请求失败 (HTTP ' + resp.status + ')'));
+      var err = new Error(data.error || ('请求失败 (HTTP ' + resp.status + ')'));
+      err.status = resp.status;
+      err.code = data.code || '';
+      err.lastSync = data.lastSync || 0;
+      throw err;
     }
     return data;
   }
@@ -94,6 +109,7 @@ var Sync = (function() {
     if (data.ok) {
       setSyncCode(data.syncCode);
       setSyncName(name);
+      if (data.lastSync) setLastSync(data.lastSync);
       // 将本地数据上传
       await uploadAll();
     }
@@ -141,6 +157,9 @@ var Sync = (function() {
         Object.assign(settings, d.settings);
         Storage.setSettings(settings);
       }
+
+      // 记录云端版本基线，供后续上传做冲突检测
+      if (d.lastSync) setLastSync(d.lastSync);
     } else {
       // 云端没有数据，初始化空数据
       Storage.setSRSData({});
@@ -155,12 +174,9 @@ var Sync = (function() {
     return data;
   }
 
-  // ===== 上传所有本地数据到云端 =====
-  async function uploadAll() {
-    var code = getSyncCode();
-    if (!code) return { ok: false, error: '无同步码' };
-
-    var payload = {
+  // ===== 构造同步 payload（uploadAll 与 sendBeacon 共用）=====
+  function buildPayload() {
+    return {
       srs: Storage.getSRSData(),
       wrong: Storage.getWrongBook(),
       best: Storage.getBestScores(),
@@ -169,12 +185,57 @@ var Sync = (function() {
       daily: Storage.getDailyProgress(),
       streak: Storage.getStreak(),
       settings: Storage.getSettings(),
+      baseSync: getLastSync(), // 冲突检测基线
     };
+  }
 
-    return await apiCall('/api/sync/' + code, {
+  // ===== 上传所有本地数据到云端 =====
+  async function uploadAll() {
+    var code = getSyncCode();
+    if (!code) return { ok: false, error: '无同步码' };
+
+    try {
+      var data = await apiCall('/api/sync/' + code, {
+        method: 'POST',
+        body: JSON.stringify(buildPayload())
+      });
+      if (data.lastSync) setLastSync(data.lastSync);
+      return data;
+    } catch(e) {
+      // 多设备冲突：拉取云端数据 → 与本地按字段合并 → 重传一次
+      if (e.status === 409 && typeof SyncMerge !== 'undefined') {
+        console.warn('检测到多设备数据冲突，自动合并...');
+        return await resolveConflict(code);
+      }
+      throw e;
+    }
+  }
+
+  // ===== 冲突处理：云端与本地合并后重新上传 =====
+  async function resolveConflict(code) {
+    // 拉取云端原始数据（不直接覆盖本地）
+    var cloud = await apiCall('/api/data/' + code, { method: 'GET' });
+    var cloudData = cloud.data || {};
+
+    var merged = SyncMerge.mergeAll(buildPayload(), cloudData);
+
+    // 合并结果写回本地存储，保持界面与云端一致
+    Storage.setSRSData(merged.srs);
+    Storage.setWrongBook(merged.wrong);
+    Storage.setBestScores(merged.best);
+    Storage.setDoneCount(merged.done);
+    Storage.setCustomWords(merged.custom);
+    Storage.setDailyProgress(merged.daily);
+    Storage.setStreak(merged.streak);
+
+    // 以云端 lastSync 为新基线重传
+    if (cloudData.lastSync) setLastSync(cloudData.lastSync);
+    var data = await apiCall('/api/sync/' + code, {
       method: 'POST',
-      body: JSON.stringify(payload)
+      body: JSON.stringify(buildPayload())
     });
+    if (data.lastSync) setLastSync(data.lastSync);
+    return data;
   }
 
   // ===== 标记需要同步（防抖） =====
@@ -210,19 +271,9 @@ var Sync = (function() {
       if (pendingSync) {
         // 用 sendBeacon 尝试同步
         try {
-          var payload = JSON.stringify({
-            srs: Storage.getSRSData(),
-            wrong: Storage.getWrongBook(),
-            best: Storage.getBestScores(),
-            done: Storage.getDoneCount(),
-            custom: Storage.getCustomWords(),
-            daily: Storage.getDailyProgress(),
-            streak: Storage.getStreak(),
-            settings: Storage.getSettings(),
-          });
           navigator.sendBeacon(
             API_BASE + '/api/sync/' + getSyncCode(),
-            new Blob([payload], { type: 'application/json' })
+            new Blob([JSON.stringify(buildPayload())], { type: 'application/json' })
           );
         } catch(e) {}
       }
@@ -240,6 +291,7 @@ var Sync = (function() {
   function disconnect() {
     setSyncCode('');
     setSyncName('');
+    setLastSync(0);
     stopAutoSync();
     pendingSync = false;
   }
@@ -251,6 +303,7 @@ var Sync = (function() {
     getSyncCode: getSyncCode,
     setSyncCode: setSyncCode,
     getSyncName: getSyncName,
+    getLastSync: getLastSync,
     register: register,
     checkCode: checkCode,
     pull: pull,
