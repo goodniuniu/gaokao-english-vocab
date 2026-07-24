@@ -218,9 +218,18 @@ export default {
     // Origin 白名单门禁：防止恶意网站借用户浏览器调用/枚举 API
     // （凭证在 URL 而非 Cookie，无 Origin 的非浏览器请求如 curl 不受限）
     // wrangler.toml [vars] ALLOWED_ORIGINS 配置，逗号分隔；未配置或为 * 时不限制
+    //
+    // 关于 Origin: null（字符串 "null"）：
+    //   浏览器在多种「合法用户场景」下会发送 Origin: null：
+    //     - iOS Safari "添加到主屏幕" 启动的 PWA
+    //     - 微信/小程序内置 WebView 的部分跳转场景
+    //     - 浏览器严格隐私模式（Brave/Firefox Strict）
+    //     - data:/about:blank 等 sandbox iframe
+    //   这些都不是恶意跨站攻击（凭证仍在同步码中，攻击者借 null Origin 也偷不到数据）。
+    //   所以对 null 单独放行；攻击面靠 KV 限流 + 同步码枚举空间兜底。
     const origin = request.headers.get('Origin');
     const allowedOrigins = (env.ALLOWED_ORIGINS || '*');
-    if (origin && allowedOrigins !== '*') {
+    if (origin && origin !== 'null' && allowedOrigins !== '*') {
       const allowed = allowedOrigins.split(',').map(s => s.trim());
       const isLocalDev = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
       if (!allowed.includes(origin) && !isLocalDev) {

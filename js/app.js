@@ -1043,18 +1043,25 @@ async function doRegister() {
   var name = $('syncRegName').value.trim();
   if (!name) { toast('请输入名字'); return; }
 
+  // 禁用按钮防止重复点击
+  var btns = document.querySelectorAll('#syncTabRegister button');
+  btns.forEach(function(b) { b.disabled = true; });
+
+  toast('注册中...', 'keep');
+
   try {
-    toast('注册中...');
     var data = await Sync.register(name);
     if (data.ok) {
-      toast('注册成功！同步码: ' + data.syncCode);
+      toast('注册成功！同步码: ' + data.syncCode, 4000);
       Sync.startAutoSync();
       refreshSyncPanel();
     } else {
-      toast(data.error || '注册失败');
+      toast(data.error || '注册失败', 4000);
     }
   } catch(e) {
-    toast('注册失败: ' + e.message);
+    toast('注册失败: ' + e.message, 5000);
+  } finally {
+    btns.forEach(function(b) { b.disabled = false; });
   }
 }
 
@@ -1064,7 +1071,7 @@ async function doLogin() {
 
   // 检查 Sync 模块是否可用
   if (typeof Sync === 'undefined') {
-    toast('同步模块未加载，请清除浏览器缓存后重试');
+    toast('同步模块未加载，请清除浏览器缓存后重试', 4000);
     return;
   }
 
@@ -1072,35 +1079,39 @@ async function doLogin() {
   var btns = document.querySelectorAll('#syncTabLogin button');
   btns.forEach(function(b) { b.disabled = true; });
 
-  toast('正在恢复数据...');
+  // 用 'keep' 让"正在恢复..."持续显示到请求结束
+  // （手机端网络较慢，原 1.8s 自动消失会让用户以为"没反应"）
+  toast('正在恢复数据...', 'keep');
 
   try {
     var data = await Sync.pull(code);
-    toast('数据恢复成功！欢迎回来，' + (Sync.getSyncName() || ''));
+    toast('数据恢复成功！欢迎回来，' + (Sync.getSyncName() || ''), 3500);
     refreshSyncPanel();
     refreshUserBadge();
     refreshStats();
     Sync.startAutoSync();
   } catch(e) {
     console.error('恢复失败:', e);
-    // 错误提示保留更久
-    var t = $('toast');
-    t.textContent = '恢复失败: ' + e.message;
-    t.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function() { t.classList.remove('show'); }, 5000);
+    toast('恢复失败: ' + e.message, 6000);
   } finally {
     btns.forEach(function(b) { b.disabled = false; });
   }
 }
 
 async function doManualSync() {
+  // 禁用按钮防止重复点击
+  var btns = document.querySelectorAll('#syncPanel button');
+  btns.forEach(function(b) { b.disabled = true; });
+
+  toast('同步中...', 'keep');
+
   try {
-    toast('同步中...');
     await Sync.uploadAll();
     toast('同步完成');
   } catch(e) {
-    toast('同步失败: ' + e.message);
+    toast('同步失败: ' + e.message, 5000);
+  } finally {
+    btns.forEach(function(b) { b.disabled = false; });
   }
 }
 
@@ -1149,12 +1160,21 @@ function hideModal(id) {
 // ============================================
 // Toast
 // ============================================
-function toast(msg) {
+// duration 可选：
+//   省略 / 1800  —— 默认短提示（1.8s）
+//   数字 > 0     —— 自定义毫秒
+//   'keep'       —— 持续显示，直到下次 toast 调用清除（用于加载中提示）
+//                  手机端网络较慢，加载类提示必须用 keep，避免 1.8s 后消失
+//                  用户以为"没反应"
+function toast(msg, duration) {
   var t = $('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 1800);
+  if (duration !== 'keep') {
+    var ms = (typeof duration === 'number' && duration > 0) ? duration : 1800;
+    toastTimer = setTimeout(function() { t.classList.remove('show'); }, ms);
+  }
 }
 
 // ============================================
