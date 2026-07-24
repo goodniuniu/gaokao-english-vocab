@@ -85,6 +85,7 @@
     <div class="card">
       <div class="modes">
         <button class="mode" onclick="startMode('flash')"><span class="t">📇 卡片学习</span><span class="d">翻卡片背单词</span></button>
+        <button class="mode" onclick="startMode('flashshuffle')"><span class="t">🔀 混序卡片</span><span class="d">打乱顺序背单词</span></button>
         <button class="mode" onclick="startMode('meaning')"><span class="t">🔤 词义选择</span><span class="d">看英文选中文</span></button>
         <button class="mode" onclick="startMode('word')"><span class="t">🧩 单词选择</span><span class="d">看中文选英文</span></button>
         <button class="mode" onclick="startMode('spell')"><span class="t">✍️ 拼写练习</span><span class="d">看释义拼单词</span></button>
@@ -170,14 +171,14 @@
       <div class="speak-row">
         <button class="speak-btn" id="fSpeakBtn" onclick="event.stopPropagation(); speak($('fWord').textContent)">🔊</button>
       </div>
-      <div class="rate-btns hidden" id="fRateBtns">
+      <div class="rate-btns" id="fRateBtns">
         <button class="btn rate-unknown" onclick="flashRate(false)">❌ 不认识</button>
         <button class="btn rate-known" onclick="flashRate(true)">✅ 认识</button>
       </div>
       <div class="flipbtns">
-        <button class="btn ghost" onclick="flashNav(-1)">上一个</button>
+        <button class="btn ghost" onclick="flashNav(-1)">◀ 上一个</button>
         <button class="btn ghost" onclick="goHome()">返回</button>
-        <button class="btn" onclick="flashNav(1)">下一个</button>
+        <button class="btn ghost" onclick="flashNav(1)">下一个 ▶</button>
       </div>
       <p style="font-size:11px;color:var(--sub);text-align:center;margin-top:8px">空格翻面 · 1=不认识 2=认识 · 左右切换</p>
     </div>

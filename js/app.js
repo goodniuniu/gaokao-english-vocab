@@ -212,8 +212,8 @@ function startMode(mode) {
   currentMode = mode;
   session = [];
 
-  if (mode === 'flash') {
-    return startFlash();
+  if (mode === 'flash' || mode === 'flashshuffle') {
+    return startFlash(mode === 'flashshuffle');
   }
 
   if (mode === 'wrong') {
@@ -570,7 +570,7 @@ function speakWord(word) { speak(word); }
 // ============================================
 // 卡片学习
 // ============================================
-function startFlash() {
+function startFlash(shuffleMode) {
   var bank = getFullBank();
   var srsData = Storage.getSRSData();
 
@@ -605,6 +605,11 @@ function startFlash() {
       var k = w.word.toLowerCase();
       if (!seen[k]) { flashList.push(w); seen[k] = true; }
     });
+  }
+
+  // 混序模式：整体打乱，增加学习趣味性
+  if (shuffleMode && flashList.length > 1) {
+    flashList = shuffle(flashList);
   }
 
   fIdx = 0;
@@ -650,14 +655,11 @@ function renderFlash() {
     } else {
       $('fExample').classList.add('hidden');
     }
-    // 翻面后显示评级按钮
-    $('fRateBtns').classList.remove('hidden');
-    $('fStatus').textContent = '翻面 · 评级';
+    $('fStatus').textContent = '翻面 · 释义';
   } else {
     $('fMean').classList.add('hidden');
     $('fExample').classList.add('hidden');
     $('fHint').textContent = '点击卡片看释义';
-    $('fRateBtns').classList.add('hidden');
     var dueCount = SRS.getDueWords(srsData).length;
     $('fStatus').textContent = dueCount > 0 ? '卡片学习 · ' + dueCount + '词待复习' : '卡片学习';
   }
@@ -1204,8 +1206,8 @@ document.addEventListener('keydown', function(e) {
   // 卡片中：空格翻面，1=不认识 2=认识，左右箭头切换
   if (!$('flash').classList.contains('hidden')) {
     if (e.key === ' ') { e.preventDefault(); flip(); }
-    else if (e.key === '1' && flipped) { e.preventDefault(); flashRate(false); }
-    else if (e.key === '2' && flipped) { e.preventDefault(); flashRate(true); }
+    else if (e.key === '1') { e.preventDefault(); flashRate(false); }
+    else if (e.key === '2') { e.preventDefault(); flashRate(true); }
     else if (e.key === 'ArrowLeft') flashNav(-1);
     else if (e.key === 'ArrowRight') flashNav(1);
   }
