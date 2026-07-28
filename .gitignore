@@ -18,6 +18,16 @@ __pycache__/
 node_modules/
 worker/node_modules/
 
+# Python 虚拟环境（本地测试用，不入库）
+server/venv/
+.env
+
+# SQLite 数据库文件（不入库，由部署方/迁移脚本生成）
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
 # Wrangler 缓存
 worker/.wrangler/
 

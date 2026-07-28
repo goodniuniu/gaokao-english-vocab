@@ -25,7 +25,7 @@ const ROOT = __dirname;
 const DIST = path.join(ROOT, 'dist');
 
 // 需要忽略的文件/目录（不发布到 GitHub Pages）
-const IGNORE = ['dist', '.git', '.workbuddy', 'node_modules', 'worker', '.github', 'test',
+const IGNORE = ['dist', '.git', '.workbuddy', 'node_modules', 'worker', 'server', '.github', 'test',
   'build.js', '.gitignore', '.gitattributes', 'package.json', 'package-lock.json'];
 
 // 判断文件是否应跳过发布
